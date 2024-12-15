@@ -1,0 +1,31 @@
+# Compiled class files
+*.class
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Maven target directory
+/target/
+
+# Eclipse-specific files and folders
+.project
+.classpath
+.settings/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test reports
+/test-output/
+
+# Dependency directories (if applicable)
+node_modules/
+
+# Build files
+*.war
+*.jar
+
+# Sensitive configuration files (customize as needed)
+/src/main/resources/config.properties
