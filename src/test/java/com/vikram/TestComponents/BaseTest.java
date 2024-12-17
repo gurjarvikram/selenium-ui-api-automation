@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.annotations.AfterMethod;
@@ -35,11 +37,23 @@ public class BaseTest {
 		FileInputStream fis = new FileInputStream(
 				System.getProperty("user.dir") + "//src//main//java//com//vikram//resources//GlobalData.properties");
 		prop.load(fis);
-		String browserName = prop.getProperty("browser");
+		
+		//This condition handle both maven headless browser execution if it get otherwise by default set browser in the global property file.
+		String browserName = System.getProperty("browser")!=null ? System.getProperty("browser") : prop.getProperty("browser");
+		
+		
+		
+		//String browserName = prop.getProperty("browser");
 
-		if (browserName.equalsIgnoreCase("chrome")) {
+		if (browserName.contains("chrome")) {
 			// chrome
-			driver = new ChromeDriver();
+			ChromeOptions options = new ChromeOptions();			
+			if(browserName.contains("headless")) 
+			{
+				options.addArguments("headless");
+			}			
+			driver = new ChromeDriver(options);
+			driver.manage().window().setSize(new Dimension(1440,900));  //full screen
 
 		} else if (browserName.equalsIgnoreCase("firefox")) {
 			// firefox
