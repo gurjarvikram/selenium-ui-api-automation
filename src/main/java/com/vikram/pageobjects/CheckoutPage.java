@@ -23,16 +23,16 @@ public class CheckoutPage extends AbstractComponent {
 
 	// pageFactory
 	@FindBy(css = ".action__submit")
-	WebElement submit;
+	private WebElement submit;
 
 	@FindBy(css = "input[placeholder='Select Country']")
-	WebElement country;
+	private WebElement country;
 
 	@FindBy(xpath = "(//button[contains(@class,'ta-item')])[2]")
-	WebElement selectCountry;
+	private WebElement selectCountry;
 
 	
-	By result = By.cssSelector(".ta-results");
+	private By result = By.cssSelector(".ta-results");
 	
 
 	public void selectCountry(String countryName) {

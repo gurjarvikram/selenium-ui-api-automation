@@ -26,10 +26,10 @@ public class ProductCataloue extends AbstractComponent{
 	// PageFactory
 	
 	@FindBy(css = ".mb-3")
-	List<WebElement> products;
+	private List<WebElement> products;
 	
 	@FindBy(css = ".ngx-spinner-overlay")
-	WebElement spinner;
+	private WebElement spinner;
 	
 	By productBy = By.cssSelector(".mb-3");
 	By addToCart = By.cssSelector(".card-body button:last-of-type");
