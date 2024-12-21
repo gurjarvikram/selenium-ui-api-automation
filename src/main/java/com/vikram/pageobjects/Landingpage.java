@@ -20,16 +20,16 @@ public class Landingpage extends AbstractComponent {
 
 	// PageFactory
 	@FindBy(id = "userEmail")
-	WebElement userEmailField;
+	private WebElement userEmailField;
 
 	@FindBy(id = "userPassword")
-	WebElement passwordField;
+	private WebElement passwordField;
 
 	@FindBy(id = "login")
-	WebElement loginButton;
+	private WebElement loginButton;
 	
 	@FindBy(css = "[class*='flyInOut']")
-	WebElement errorMessage;
+	private WebElement errorMessage;
 
 	
 	public ProductCataloue loginAplication(String username, String password) {
