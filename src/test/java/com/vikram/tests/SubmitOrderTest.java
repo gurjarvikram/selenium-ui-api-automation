@@ -1,9 +1,14 @@
 package com.vikram.tests;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -17,13 +22,11 @@ import com.vikram.pageobjects.OrderPage;
 import com.vikram.pageobjects.ProductCataloue;
 
 public class SubmitOrderTest extends BaseTest {
-	
-	
+
 	String productName = "ZARA COAT 3";
 
 	@Test(dataProvider = "getData", groups = { "Purchase" })
 	public void submitOrder(HashMap<String, String> input) throws IOException, InterruptedException {
-		
 
 		ProductCataloue productCataloue = landingPage.loginAplication(input.get("email"), input.get("password"));
 
@@ -40,9 +43,8 @@ public class SubmitOrderTest extends BaseTest {
 
 		String confirmMessage = confirmationPage.getConfirmationMessage();
 		Assert.assertTrue(confirmMessage.equalsIgnoreCase("THANKYOU FOR THE ORDER."));
-		
+
 	}
-	
 
 	@Test(dependsOnMethods = { "submitOrder" })
 	public void orderHistory() {
@@ -53,9 +55,8 @@ public class SubmitOrderTest extends BaseTest {
 		Assert.assertTrue(orderPage.verifyOrderDisplay(productName));
 
 	}
-	
-//Test data sets	
-//TEST DATA SET - 1 ***************************
+
+//************************************* TEST DATA SET - 1 ***************************
 
 	// This method provides test data in the form of a two-dimensional Object array,
 	// where each element is a HashMap containing key-value pairs for email,
@@ -81,37 +82,35 @@ public class SubmitOrderTest extends BaseTest {
 //			{map}, 		// First data set
 //			{map1}};	// Second data set	
 //	}
-	//***REDACTED-EMAIL***
-	//***REDACTED-PASSWORD***
 
-	//TEST DATA SET - 2 *********************************
-	
+
+	//****************************** TEST DATA SET - 2 *********************************
+
 	/**
-	 * This DataProvider method retrieves test data from a JSON file and provides it 
+	 * This DataProvider method retrieves test data from a JSON file and provides it
 	 * to test methods in the form of a two-dimensional Object array.
 	 *
-	 * Steps:
-	 * 1. Reads the JSON file containing test data using the `getJsonDataToMap` method.
-	 *    - The file is located at: "src/test/java/com/vikram/data/Purchaseorder.json".
-	 * 2. Converts the JSON content into a List of HashMaps, where each HashMap represents
-	 *    a single test data set (key-value pairs).
-	 * 3. Returns the test data as individual rows in a two-dimensional Object array. 
-	 * */
-	
-	@DataProvider
-	public Object[][] getData() throws IOException {
-		// Reading test data from the JSON file and converting it to a List of HashMaps
-		List<HashMap<String, String>> data = getJsonDataToMap(
-				System.getProperty("user.dir") + "//src//test//java//com//vikram//data//Purchaseorder.json");
+	 * Steps: 1. Reads the JSON file containing test data using the
+	 * `getJsonDataToMap` method. - The file is located at:
+	 * "src/test/java/com/vikram/data/Purchaseorder.json". 2. Converts the JSON
+	 * content into a List of HashMaps, where each HashMap represents a single test
+	 * data set (key-value pairs). 3. Returns the test data as individual rows in a
+	 * two-dimensional Object array.
+	 */
 
-		// Returning individual JSON objects as data sets
-		return new Object[][] { { data.get(0) }, // First data set from JSON
-				{ data.get(1) } // Second data set from JSON
-		};
-	}
+//	@DataProvider
+//	public Object[][] getData() throws IOException {
+//		// Reading test data from the JSON file and converting it to a List of HashMaps
+//		List<HashMap<String, String>> data = getJsonDataToMap(
+//				System.getProperty("user.dir") + "//src//test//java//com//vikram//data//Purchaseorder.json");
+//
+//		// Returning individual JSON objects as data sets
+//		return new Object[][] { { data.get(0) }, // First data set from JSON
+//				{ data.get(1) } // Second data set from JSON
+//		};
+//	}
 
-	
-//TEST DATA SET - 3	***********************************
+//****************************** TEST DATA SET - 3	***********************************
 
 // Alternative approach using a simple Object array for test data	
 
@@ -123,5 +122,82 @@ public class SubmitOrderTest extends BaseTest {
 //			{"***REDACTED-EMAIL***","***REDACTED-PASSWORD***","ZARA COAT 3"},    // First data set
 //			{"***REDACTED-EMAIL***","***REDACTED-PASSWORD***","ADIDAS ORIGINAL"} // Second data set	
 //	};	
+	
+
+	//*************************** TEST DATA SET - 4 ***********************************
+
+	@DataProvider
+	public Object[][] getData() throws IOException {
+		// Specify the absolute path to the Excel file containing the test data
+		// Adjust this path according to the location of your testData.xlsx file
+		String filePath = "/home/b/Documents/testData.xlsx";
+
+		// Log the file path for debugging purposes to verify the correct path is being
+		// used
+		System.out.println("Looking for test data file at: " + filePath);
+
+		// Create a File object for the specified file path
+		File file = new File(filePath);
+
+		// Check if the file exists; if not, throw a runtime exception with a
+		// descriptive message
+		if (!file.exists()) {
+			throw new RuntimeException("Test data file not found at: " + filePath);
+		}
+
+		// Use Apache POI to read the Excel file
+		try (FileInputStream fis = new FileInputStream(file); // Open the file as an input stream
+				XSSFWorkbook wb = new XSSFWorkbook(fis)) { // Load the Excel workbook from the input stream
+
+			// Get the first sheet from the workbook (assumes the data is on the first
+			// sheet)
+			XSSFSheet sheet = wb.getSheetAt(0);
+
+			// Get the total number of rows in the sheet (including the header row)
+			int rowCount = sheet.getPhysicalNumberOfRows();
+
+			// Get the header row (first row) to extract column names
+			XSSFRow row = sheet.getRow(0);
+
+			// Get the total number of columns in the header row
+			int colCount = row.getLastCellNum();
+
+			// Create a 2D Object array to store the test data
+			// Each row of the array corresponds to one test case
+			// Each cell of the array contains a HashMap representing a test case's data
+			Object[][] data = new Object[rowCount - 1][1];
+
+			// Iterate over each row in the Excel sheet (excluding the header row)
+			for (int i = 0; i < rowCount - 1; i++) {
+				row = sheet.getRow(i + 1); // Move to the next row (data starts from the second row)
+				HashMap<String, String> map = new HashMap<>(); // Create a HashMap to store column-value pairs for this
+																// row
+
+				// Iterate over each column in the row
+				for (int j = 0; j < colCount; j++) {
+					// Get the column name from the header row
+					String key = sheet.getRow(0).getCell(j).toString();
+
+					// Get the value for the current cell, or set it to an empty string if the cell
+					// is null
+					String value = (row.getCell(j) == null) ? "" : row.getCell(j).toString();
+
+					// Add the column name and value as a key-value pair in the HashMap
+					map.put(key, value);
+				}
+
+				// Store the HashMap in the 2D array, representing one test case
+				data[i][0] = map;
+			}
+
+			// Return the 2D Object array containing all test cases and their data
+			return data;
+
+		} catch (IOException e) {
+			// If an exception occurs while reading the file, log the error and rethrow it
+			System.err.println("Error reading test data from file: " + filePath);
+			throw e;
+		}
+	}
 
 }
