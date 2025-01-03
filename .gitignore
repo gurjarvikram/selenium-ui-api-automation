@@ -4,21 +4,34 @@
 # Logs and temp files
 *.log
 *.tmp
+*.bak
+*.swp
+*.swo
+*.~*
 
 # Maven target directory
 /target/
+/out/
 
 # Eclipse-specific files and folders
 .project
 .classpath
 .settings/
+/.metadata/
+
+# IntelliJ IDEA and VSCode
+.idea/
+.vscode/
 
 # OS-specific files
 .DS_Store
 Thumbs.db
 
-# Test reports
+# Test reports and generated files
 /test-output/
+/reports/
+/testSuites/*.log
+/testSuites/*.tmp
 
 # Dependency directories (if applicable)
 node_modules/
@@ -29,3 +42,9 @@ node_modules/
 
 # Sensitive configuration files (customize as needed)
 /src/main/resources/config.properties
+/src/main/resources/*.yaml
+/src/main/resources/*.env
+
+# Gradle files
+/.gradle/
+/build/
