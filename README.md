@@ -21,10 +21,22 @@ This framework is designed for end-to-end UI automation testing using **Selenium
 - **TestNG** – For test execution, assertions, and reporting
 - **Maven** – Manages dependencies and builds
 - **Jenkins** – Continuous Integration (CI/CD) execution
-- **Test Data** – Supports multiple test data sets including Excel, JSON, simple object arrays, and HashMap-based key-value pairs for data-driven testing.
-- **Extent Reporting** – Generates comprehensive test execution reports
+- **Test Data** – Supports multiple test data sets including Excel, JSON, simple object arrays, and HashMaps containing key-value pairs for data-driven testing.
+- **Extent Reporting** – Generates comprehensive test execution reports.
 
 ## Key Features
+
+### ✅ TestNG Top Features with Selenium
+- **Annotations** – Uses `@Test`, `@BeforeSuite`, `@AfterSuite`, `@BeforeMethod`, `@AfterMethod` for structured test execution.
+- **Parallel Execution** – Enables execution of multiple tests concurrently to save time.
+- **Grouping Tests** – Categorizes test cases using `groups` to manage execution dynamically.
+- **Data-Driven Testing** – Supports `@DataProvider` for JSON, Excel, and object-driven test data.
+- **Dependency Management** – Uses `dependsOnMethods` to control test dependencies.
+- **Parameterization** – Uses `@Parameters` to inject values dynamically.
+- **Assertions** – Implements `Assert` methods for validating test cases.
+- **Retry Mechanism** – Uses `IRetryAnalyzer` to re-execute failed tests.
+- **Listeners** – Implements `ITestListener` and `ISuiteListener` for event-driven test monitoring.
+- **Multiple Test Suites** – Manages multiple test scenarios using TestNG XML configurations.
 
 ### ✅ End-to-End UI Testing
 - Comprehensive **E2E UI automation testing** for an **e-commerce purchase order** complete journey.
@@ -32,10 +44,11 @@ This framework is designed for end-to-end UI automation testing using **Selenium
 - Validates **error handling** using **TestNG assertions**.
 
 ### ✅ Data-Driven Testing 
-- Supports DataProvider method retrieves **JSON-driven test data** for multiple datasets.
-- Utilized **DataProvider test data** where each test data element is a HashMap containing key-value pairs for email, password, and product.
+- Supports DataProvider method to retrieve **JSON-driven test data** for multiple datasets.
+- Utilizes **DataProvider test data** with a two-dimensional Object array, where each element is a HashMap containing key-value pairs for email, password, and product.
 - Alternative approach using a simple Object array for test data.
 - **Apache POI** for Excel-driven data-driven testing - Specify the absolute path to the Excel file containing the test data and adjust this path according to the location of your `testData.xlsx` file.
+- **TestNG Parameterization** - Utilizes test data sets in the framework efficiently.
 
 ### ✅ Multiple Test Suites
 - Implements multiple test suites such as:
