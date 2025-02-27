@@ -1,95 +1,129 @@
-# UI Selenium WebDriver Automation Framework
+```md
+# 🚀 UI Selenium WebDriver Automation Framework
 
-## Overview
-This framework is designed for end-to-end UI automation testing using **Selenium WebDriver, TestNG, and Maven**, following industry best practices. It enables:
-- **Data-driven testing**
-- **Abstract components**
-- **Base test implementation**
-- **Retry mechanism**
-- **Listeners**
-- **Extent reporting**
+## 📖 Overview
+This framework provides a robust **end-to-end UI automation testing solution** using:
+✅ **Selenium WebDriver**  
+✅ **TestNG**  
+✅ **Maven**  
+✅ **Cucumber (integrated with TestNG)**  
+✅ **Jenkins (CI/CD ready)**  
+
+It follows **industry best practices** and supports:
+- **Data-driven testing** (JSON, Excel, HashMap)
 - **Page Object Model (POM) and Page Factory**
-- **Global properties management**
-- **Dependency and build management using Maven**
-- **Parallel execution**
-- **Multiple test suites support**
-- **Seamless integration into Jenkins CI/CD pipelines for continuous testing**
+- **Parallel test execution**
+- **Retry mechanisms & TestNG listeners**
+- **Comprehensive reporting** (Extent Reports, Cucumber Reports, TestNG Reports)
+- **Global configuration management**
+- **Seamless Jenkins CI/CD pipeline integration**
 
-## Technologies Used
-- **Selenium WebDriver** – For UI testing and verification
-- **Java** – Primary programming language
-- **TestNG** – For test execution, assertions, and reporting
-- **Maven** – Manages dependencies and builds
-- **Jenkins** – Continuous Integration (CI/CD) execution
-- **Test Data** – Supports multiple test data sets including Excel, JSON, simple object arrays, and HashMaps containing key-value pairs for data-driven testing.
-- **Extent Reporting** – Generates comprehensive test execution reports.
+---
 
-## Key Features
+## 🛠️ Technologies Used
+| Tool            | Purpose |
+|----------------|---------|
+| **Selenium WebDriver** | UI test automation |
+| **Java** | Primary programming language |
+| **TestNG** | Test execution, assertions, and reporting |
+| **Maven** | Dependency and build management |
+| **Cucumber** | BDD framework integrated with TestNG |
+| **Jenkins** | Continuous Integration (CI/CD) |
+| **Apache POI** | Excel-based test data handling |
+| **Extent Reports** | Detailed test execution reports |
+| **JSON Test Data** | Data-driven testing |
 
-### ✅ TestNG Top Features with Selenium
-- **Annotations** – Uses `@Test`, `@BeforeSuite`, `@AfterSuite`, `@BeforeMethod`, `@AfterMethod` for structured test execution.
-- **Parallel Execution** – Enables execution of multiple tests concurrently to save time.
-- **Grouping Tests** – Categorizes test cases using `groups` to manage execution dynamically.
-- **Data-Driven Testing** – Supports `@DataProvider` for JSON, Excel, and object-driven test data.
-- **Dependency Management** – Uses `dependsOnMethods` to control test dependencies.
-- **Parameterization** – Uses `@Parameters` to inject values dynamically.
-- **Assertions** – Implements `Assert` methods for validating test cases.
-- **Retry Mechanism** – Uses `IRetryAnalyzer` to re-execute failed tests.
-- **Listeners** – Implements `ITestListener` and `ISuiteListener` for event-driven test monitoring.
-- **Multiple Test Suites** – Manages multiple test scenarios using TestNG XML configurations.
+---
 
-### ✅ End-to-End UI Testing
-- Comprehensive **E2E UI automation testing** for an **e-commerce purchase order** complete journey.
-- Covers **cart page, checkout, order placement, and order verification**.
-- Validates **error handling** using **TestNG assertions**.
+## 📌 Features
 
-### ✅ Data-Driven Testing 
-- Supports DataProvider method to retrieve **JSON-driven test data** for multiple datasets.
-- Utilizes **DataProvider test data** with a two-dimensional Object array, where each element is a HashMap containing key-value pairs for email, password, and product.
-- Alternative approach using a simple Object array for test data.
-- **Apache POI** for Excel-driven data-driven testing - Specify the absolute path to the Excel file containing the test data and adjust this path according to the location of your `testData.xlsx` file.
-- **TestNG Parameterization** - Utilizes test data sets in the framework efficiently.
+### ✅ **TestNG + Selenium**
+- **Annotations** (`@Test`, `@BeforeSuite`, `@AfterSuite`, etc.)
+- **Parallel Execution** – Speeds up execution.
+- **Data-Driven Testing** – Supports JSON, Excel, and HashMap test data.
+- **Test Grouping & Dependency Management** – Organize test execution with `groups` and `dependsOnMethods`.
+- **Retry Mechanism** – Uses `IRetryAnalyzer` for failed tests.
+- **Assertions & Listeners** – Implements `Assert` and `ITestListener` for reporting.
+- **Multiple Test Suites** – Configurable via **TestNG XML**.
 
-### ✅ Multiple Test Suites
-- Implements multiple test suites such as:
-  - **PurchaseTest**
-  - **Regression Suite**
-  - **ErrorValidationTests**
+### ✅ **Cucumber BDD Integration**
+- **Feature Files & Step Definitions** – Implements **Cucumber BDD** with **Selenium WebDriver**.
+- **Cucumber Tags & Parameterization** – Supports **tag-based execution** and **data-driven testing**.
+- **Cucumber TestNG Runner** – Executes Cucumber feature files with TestNG.
 
-### ✅ Parallel Execution
-- Enables **parallel test execution** for faster test runs.
-
-### ✅ Modular & Scalable Design
-This framework follows a **structured and reusable** test automation approach:
-- **Abstract Component** – Represents API request/response payloads.
-- **POM (Page Object Model)** – Implements the POM design pattern and utilizes the **DRY (Don't Repeat Yourself) principle**.
-- **PageFactory** – Uses the **Page Factory mechanism** for managing locators.
-- **Global Properties** – Centralized configuration management.
-
-### ✅ Base Test Implementation
-- Implements a **Base Test class** that is **reusable** and can be **extended** in other test files.
-
-### ✅ Retry Mechanism
-- Ensures test case **re-execution** on failures.
-
-### ✅ TestNG Listeners
-- Implements **TestNG listeners** for test monitoring and reporting.
-
-### ✅ Extent Reporting
-- Generates **detailed Extent reports** to track:
+### ✅ **Advanced Reporting**
+- **Extent Reports** – Tracks:
   - Test execution results
-  - Assertions
-  - Failures
-- Supports **logging** and **debugging of UI responses**.
+  - Assertions & failures
+  - Debug logs & screenshots
+- **Cucumber Reports** – Generates step-by-step execution results.
+- **TestNG Reports** – Standard XML & HTML reports.
 
-### ✅ Continuous Integration (CI/CD) Ready
-- **Seamless Jenkins integration** for automated test execution.
-- Supports **Maven-based test execution** with CI/CD pipelines.
-- Generates **automated reports** and logs after each test run.
+### ✅ **Page Object Model (POM) & Abstract Components**
+- Implements **POM design pattern** with `@FindBy` annotations.
+- Uses **Page Factory for better element handling**.
+- **Abstract Component** – Provides reusable UI interaction methods.
 
-## Contributing
-Contributions are welcome! Please submit a **Pull Request (PR)** or open an **issue** for discussions.
+### ✅ **Data-Driven Testing**
+- **JSON-based test data** – Reads dynamic test sets.
+- **Excel-based test data** – Uses **Apache POI** for reading spreadsheets.
+- **TestNG `@DataProvider`** – Handles parameterized test execution.
 
-## License
-This project is open-source software licensed under the **MIT License**.
+### ✅ **Parallel Execution & CI/CD Integration**
+- **Parallel Test Execution** – Configurable via TestNG XML.
+- **Jenkins Integration** – Executes tests in **CI/CD pipelines**.
+- **Maven Integration** – Run tests via command line:
+  ```sh
+  mvn clean test
+  ```
 
+---
+
+## 🔧 **Project Setup**
+### **1️⃣ Prerequisites**
+Ensure you have the following installed:
+- **Java 21+**
+- **Maven 3.9+**
+- **Selenium WebDriver**
+- **TestNG**
+- **Cucumber**
+- **Jenkins (optional for CI/CD execution)**
+
+### **2️⃣ Clone the Repository**
+```sh
+git clone https://github.com/gurjarvikram/selenium-framework-automation-java.git
+cd selenium-framework-automation-java
+```
+
+### **3️⃣ Install Dependencies**
+```sh
+mvn clean install
+```
+
+### **4️⃣ Run Tests**
+#### **TestNG Execution**
+```sh
+mvn test
+```
+#### **Cucumber Test Execution**
+```sh
+mvn test -Dcucumber.options="src/test/resources/features"
+```
+#### **Parallel Execution**
+```sh
+mvn test -Dgroups=parallel
+```
+
+---
+
+## 🤝 **Contributing**
+We welcome contributions!  
+- **Fork the repo** and create a feature branch.
+- **Submit a Pull Request (PR)** for review.
+
+---
+
+## 📜 **License**
+This project is licensed under the **MIT License**.
+
+---
