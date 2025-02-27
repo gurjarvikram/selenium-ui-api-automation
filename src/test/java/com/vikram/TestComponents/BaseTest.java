@@ -23,12 +23,12 @@ import org.testng.annotations.BeforeMethod;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vikram.pageobjects.Landingpage;
+import com.vikram.pageobjects.LandingPage;
 
 public class BaseTest {
 
 	public WebDriver driver;
-	public Landingpage landingPage;
+	public LandingPage landingPage;
 
 	public WebDriver initializeDriver() throws IOException {
 
@@ -38,12 +38,14 @@ public class BaseTest {
 				System.getProperty("user.dir") + "//src//main//java//com//vikram//resources//GlobalData.properties");
 		prop.load(fis);
 		
-		//This condition handle both maven headless browser execution if it get otherwise by default set browser in the global property file.
+		// This condition handles both Maven headless browser execution (if specified) 
+		// and, by default, sets the browser from the global properties file if no Maven argument is provided.
 		String browserName = System.getProperty("browser")!=null ? System.getProperty("browser") : prop.getProperty("browser");
 		
+		// If we use only the global properties file, this line will be used instead, 
+		// meaning the Maven command's browser parameter will not be considered.
+		//String browserName = prop.getProperty("browser"); 		
 		
-		
-		//String browserName = prop.getProperty("browser");
 
 		if (browserName.contains("chrome")) {
 			// chrome
@@ -115,10 +117,9 @@ public class BaseTest {
 	}
 
 	@BeforeMethod(alwaysRun = true)
-	public Landingpage lanuchApplication() throws IOException {
-
+	public LandingPage lanuchApplication() throws IOException {
 		driver = initializeDriver();
-		landingPage = new Landingpage(driver);
+		landingPage = new LandingPage(driver);
 		landingPage.goTo();
 		return landingPage;
 
