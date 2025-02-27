@@ -7,10 +7,10 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.vikram.TestComponents.Retry;
 import com.vikram.TestComponents.BaseTest;
+import com.vikram.TestComponents.Retry;
 import com.vikram.pageobjects.CartPage;
-import com.vikram.pageobjects.ProductCataloue;
+import com.vikram.pageobjects.ProductCatalogue;
 
 public class ErrorValidationsTest extends BaseTest {
 
@@ -18,7 +18,7 @@ public class ErrorValidationsTest extends BaseTest {
 	public void loginErrorValidation() throws IOException, InterruptedException 
 	{
 
-		landingPage.loginAplication("***REDACTED-EMAIL***", "AdminWrong@123?");
+		landingPage.loginApplication("***REDACTED-EMAIL***", "AdminWrong@123?");
 		Assert.assertEquals("Incorrect email or password.",landingPage.getErrorMessage());					
 		//Incorrect email or password.
 	}
@@ -29,7 +29,7 @@ public class ErrorValidationsTest extends BaseTest {
 
 		String productName = "ZARA COAT 3";
 
-		ProductCataloue productCataloue = landingPage.loginAplication("***REDACTED-EMAIL***", "***REDACTED-PASSWORD***");
+		ProductCatalogue productCataloue = landingPage.loginApplication("***REDACTED-EMAIL***", "***REDACTED-PASSWORD***");
 
 		List<WebElement> products = productCataloue.getProductList();
 		productCataloue.addProductToCart(productName);

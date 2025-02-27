@@ -8,14 +8,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-
 import com.vikram.AbstractComponent.AbstractComponent;
 
-public class ProductCataloue extends AbstractComponent{
+public class ProductCatalogue extends AbstractComponent{
 
 	WebDriver driver;
 
-	public ProductCataloue(WebDriver driver) {		
+	public ProductCatalogue(WebDriver driver) {		
 		super(driver);
 		// Initilization
 		this.driver = driver;

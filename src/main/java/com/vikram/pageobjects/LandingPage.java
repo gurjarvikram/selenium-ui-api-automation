@@ -7,11 +7,11 @@ import org.openqa.selenium.support.PageFactory;
 
 import com.vikram.AbstractComponent.AbstractComponent;
 
-public class Landingpage extends AbstractComponent {
+public class LandingPage extends AbstractComponent {
 
 	WebDriver driver;
 
-	public Landingpage(WebDriver driver) {
+	public LandingPage(WebDriver driver) {
 		super(driver);
 		this.driver = driver;
 		PageFactory.initElements(driver, this);
@@ -32,14 +32,14 @@ public class Landingpage extends AbstractComponent {
 	private WebElement errorMessage;
 
 	
-	public ProductCataloue loginAplication(String username, String password) {
+	public ProductCatalogue loginApplication(String email, String password) {
 		
-		userEmailField.sendKeys(username);
+		userEmailField.sendKeys(email);
 		passwordField.sendKeys(password);
 		loginButton.click();
 		
-		ProductCataloue productCataloue = new ProductCataloue(driver);
-		return productCataloue;
+		ProductCatalogue productCatalogue = new ProductCatalogue(driver);
+		return productCatalogue;
 	}
 
 	public String getErrorMessage() {
