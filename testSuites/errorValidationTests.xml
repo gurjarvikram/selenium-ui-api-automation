@@ -6,27 +6,19 @@
 	<groups>
 		<run>
 				<include name="ErrorHandling"></include>
-		</run>
-	
-	
+		</run>		
 	</groups>
-
 
   <test thread-count="5" name="Sumit Order Test">
     <classes>
       <class name="com.vikram.tests.SubmitOrderTest"/>
-
     </classes>
   </test>
   
   <test thread-count="5" name="Test">
-    <classes>
-    
-      <class name="com.vikram.tests.ErrorValidationsTest"/>
-      
+    <classes>    
+      <class name="com.vikram.tests.ErrorValidationsTest"/>      
     </classes>
-  </test>
-  
-  
+  </test>    
   
 </suite> 

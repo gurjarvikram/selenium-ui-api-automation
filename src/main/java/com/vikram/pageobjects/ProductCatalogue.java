@@ -30,9 +30,9 @@ public class ProductCatalogue extends AbstractComponent{
 	@FindBy(css = ".ngx-spinner-overlay")
 	private WebElement spinner;
 	
-	By productBy = By.cssSelector(".mb-3");
-	By addToCart = By.cssSelector(".card-body button:last-of-type");
-	By toastMessage =	By.cssSelector("#toast-container");
+	private By productBy = By.cssSelector(".mb-3");
+	private By addToCart = By.cssSelector(".card-body button:last-of-type");
+	private By toastMessage =	By.cssSelector("#toast-container");
 	
 	
 	
