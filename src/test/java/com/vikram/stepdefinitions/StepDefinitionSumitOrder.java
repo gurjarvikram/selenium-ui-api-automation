@@ -65,6 +65,13 @@ public class StepDefinitionSumitOrder extends BaseTest{
 		driver.close();
 	}
 	
+	@Then("{string} message is displayed")
+	public void message_is_displayed(String string)
+	{
+		Assert.assertEquals(string, landingPage.getErrorMessage());
+		driver.close();
+	}
+	
 	
 
 }

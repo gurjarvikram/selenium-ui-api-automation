@@ -2,17 +2,14 @@
 @tag
 Feature: Error validation
   I want to use this template for my feature file
-	
-	Background:  
-	Given I landed on Ecommerce page
 
-  @ErrorValidation
-  Scenario Outline: Positive Test of submitting the order
-    Given I logged in with username <name> and password <password>
-    When I add product <productName> to cart
-    And I checkout <productName> and sumit the order
-    Then "Thankyou for the order." message is displayed on confirmation page
+
+  @Regression
+  Scenario Outline: Test of error validation
+  	Given I landed on Ecommerce page
+    When I logged in with username <name> and password <password>
+    Then "Incorrect email or password." message is displayed
 
     Examples: 
-      | name		  						| password 		| productName  |
-      | ***REDACTED-EMAIL*** 		| ***REDACTED-PASSWORD*** 	| ZARA COAT 3  |
+      | name		  						| password 		|
+      | ***REDACTED-EMAIL*** 		| Wrong@123?  |
