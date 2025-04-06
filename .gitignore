@@ -1,7 +1,17 @@
-# Compiled class files
+# ========================================
+# 🔧 Compilation & Build Artifacts
+# ========================================
 *.class
+*.war
+*.jar
+/target/
+/out/
+/build/
+/.gradle/
 
-# Logs and temp files
+# ========================================
+# 📝 Logs & Temp Files
+# ========================================
 *.log
 *.tmp
 *.bak
@@ -9,42 +19,45 @@
 *.swo
 *.~*
 
-# Maven target directory
-/target/
-/out/
-
-# Eclipse-specific files and folders
-.project
+# ========================================
+# 💻 IDE Specific
+# ========================================
+# Eclipse
 .classpath
+.project
 .settings/
 /.metadata/
 
-# IntelliJ IDEA and VSCode
+# IntelliJ
 .idea/
+*.iml
+
+# VS Code
 .vscode/
 
-# OS-specific files
+# ========================================
+# 🖥️ OS-Specific Files
+# ========================================
 .DS_Store
 Thumbs.db
 
-# Test reports and generated files
+# ========================================
+# 🧪 Reports, Output, Screenshots
+# ========================================
 /test-output/
 /reports/
+/reports/screenshots/
+/ExtentReport-*/
+/cucumber-reports/
 /testSuites/*.log
 /testSuites/*.tmp
 
-# Dependency directories (if applicable)
-node_modules/
+# ========================================
+# 📦 Dependency Folders (Node/JS tools)
+/node_modules/
 
-# Build files
-*.war
-*.jar
-
-# Sensitive configuration files (customize as needed)
+# ========================================
+# 🔒 Environment or Sensitive Config (customize)
 /src/main/resources/config.properties
 /src/main/resources/*.yaml
 /src/main/resources/*.env
-
-# Gradle files
-/.gradle/
-/build/
