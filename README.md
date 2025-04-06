@@ -2,128 +2,153 @@
 # 🚀 UI Selenium WebDriver Automation Framework
 
 ## 📖 Overview
+
 This framework provides a robust **end-to-end UI automation testing solution** using:
-✅ **Selenium WebDriver**  
-✅ **TestNG**  
-✅ **Maven**  
-✅ **Cucumber (integrated with TestNG)**  
-✅ **Jenkins (CI/CD ready)**  
+
+- **Selenium WebDriver**  
+- **TestNG**  
+- **Maven**  
+- **Cucumber (integrated with TestNG)**  
+- **Jenkins (CI/CD ready)**  
 
 It follows **industry best practices** and supports:
-- **Data-driven testing** (JSON, Excel, HashMap)
-- **Page Object Model (POM) and Page Factory**
-- **Parallel test execution**
-- **Retry mechanisms & TestNG listeners**
-- **Comprehensive reporting** (Extent Reports, Cucumber Reports, TestNG Reports)
-- **Global configuration management**
-- **Seamless Jenkins CI/CD pipeline integration**
+
+- ✅ Data-driven testing (JSON, Excel, HashMap)  
+- ✅ Page Object Model (POM) and Page Factory  
+- ✅ Parallel test execution  
+- ✅ Retry mechanisms & TestNG listeners  
+- ✅ Comprehensive reporting (Extent, Cucumber, TestNG)  
+- ✅ Global configuration management  
+- ✅ Jenkins pipeline integration for CI/CD  
 
 ---
 
 ## 🛠️ Technologies Used
-| Tool            | Purpose |
-|----------------|---------|
-| **Selenium WebDriver** | UI test automation |
-| **Java** | Primary programming language |
-| **TestNG** | Test execution, assertions, and reporting |
-| **Maven** | Dependency and build management |
-| **Cucumber** | BDD framework integrated with TestNG |
-| **Jenkins** | Continuous Integration (CI/CD) |
-| **Apache POI** | Excel-based test data handling |
-| **Extent Reports** | Detailed test execution reports |
-| **JSON Test Data** | Data-driven testing |
+
+| Tool             | Purpose                             |
+|------------------|--------------------------------------|
+| Selenium WebDriver | UI automation                      |
+| Java             | Programming language                 |
+| Maven            | Build and dependency management      |
+| TestNG           | Test runner                          |
+| Cucumber         | BDD framework                        |
+| Jenkins          | Continuous Integration               |
+| Apache POI       | Excel-based data handling            |
+| Extent Reports   | Detailed test execution reports      |
+| JSON             | Parameterized test data              |
 
 ---
 
 ## 📌 Features
 
-### ✅ **TestNG + Selenium**
-- **Annotations** (`@Test`, `@BeforeSuite`, `@AfterSuite`, etc.)
-- **Parallel Execution** – Speeds up execution.
-- **Data-Driven Testing** – Supports JSON, Excel, and HashMap test data.
-- **Test Grouping & Dependency Management** – Organize test execution with `groups` and `dependsOnMethods`.
-- **Retry Mechanism** – Uses `IRetryAnalyzer` for failed tests.
-- **Assertions & Listeners** – Implements `Assert` and `ITestListener` for reporting.
-- **Multiple Test Suites** – Configurable via **TestNG XML**.
+### ✅ TestNG + Selenium
+- Annotations: `@Test`, `@BeforeSuite`, `@AfterSuite`
+- Parallel Execution
+- Data-driven testing using JSON & Excel
+- Test grouping & dependency (`groups`, `dependsOnMethods`)
+- Retry logic via `IRetryAnalyzer`
+- TestNG Listeners: `ITestListener`
+- Multiple test suites via XML
 
-### ✅ **Cucumber BDD Integration**
-- **Feature Files & Step Definitions** – Implements **Cucumber BDD** with **Selenium WebDriver**.
-- **Cucumber Tags & Parameterization** – Supports **tag-based execution** and **data-driven testing**.
-- **Cucumber TestNG Runner** – Executes Cucumber feature files with TestNG.
+### ✅ Cucumber BDD Integration
+- Feature files + step definitions
+- Tag-based selective execution
+- Data-driven scenario parameterization
+- Executed using Cucumber TestNG Runner
 
-### ✅ **Advanced Reporting**
-- **Extent Reports** – Tracks:
-  - Test execution results
-  - Assertions & failures
-  - Debug logs & screenshots
-- **Cucumber Reports** – Generates step-by-step execution results.
-- **TestNG Reports** – Standard XML & HTML reports.
+### ✅ Reporting
+- **Extent Reports**: test logs, screenshots, results  
+- **Cucumber Reports**: step-wise scenario reports  
+- **TestNG Reports**: default XML + HTML output  
 
-### ✅ **Page Object Model (POM) & Abstract Components**
-- Implements **POM design pattern** with `@FindBy` annotations.
-- Uses **Page Factory for better element handling**.
-- **Abstract Component** – Provides reusable UI interaction methods.
+### ✅ Page Object Model (POM)
+- Uses `@FindBy` with PageFactory
+- AbstractComponent for reusable actions
+- Clean, modular test structure
 
-### ✅ **Data-Driven Testing**
-- **JSON-based test data** – Reads dynamic test sets.
-- **Excel-based test data** – Uses **Apache POI** for reading spreadsheets.
-- **TestNG `@DataProvider`** – Handles parameterized test execution.
+### ✅ Data-Driven Testing
+- JSON: scenario inputs from `.json`
+- Excel: read from `.xlsx` via Apache POI
+- TestNG `@DataProvider` for parametrized tests
 
-### ✅ **Parallel Execution & CI/CD Integration**
-- **Parallel Test Execution** – Configurable via TestNG XML.
-- **Jenkins Integration** – Executes tests in **CI/CD pipelines**.
-- **Maven Integration** – Run tests via command line:
+### ✅ CI/CD & Parallel Execution
+- Parallel execution via TestNG XML
+- Jenkins-compatible for CI pipeline automation
+- Maven CLI support:
   ```sh
   mvn clean test
   ```
 
 ---
 
-## 🔧 **Project Setup**
-### **1️⃣ Prerequisites**
-Ensure you have the following installed:
-- **Java 21+**
-- **Maven 3.9+**
-- **Selenium WebDriver**
-- **TestNG**
-- **Cucumber**
-- **Jenkins (optional for CI/CD execution)**
+## 🧱 Project Structure
 
-### **2️⃣ Clone the Repository**
+<pre>
+selenium-framework-automation-java/
+├── reports/              # Auto-generated reports and screenshots
+├── src/                  # Main codebase (Java, POM, Utilities)
+├── testSuites/           # TestNG XML suite files
+├── .gitignore
+├── README.md
+├── pom.xml
+</pre>
+
+---
+
+## 🔧 Setup Instructions
+
+### ✅ Prerequisites
+- Java 21+
+- Maven 3.9+
+- ChromeDriver / WebDriver Manager
+- TestNG
+- Jenkins (optional for CI)
+
+### ✅ Clone the Repository
 ```sh
 git clone https://github.com/gurjarvikram/selenium-framework-automation-java.git
 cd selenium-framework-automation-java
 ```
 
-### **3️⃣ Install Dependencies**
+### ✅ Install Dependencies
 ```sh
 mvn clean install
 ```
 
-### **4️⃣ Run Tests**
-#### **TestNG Execution**
+### ✅ Run Tests
+
+**TestNG Default Execution**
 ```sh
 mvn test
 ```
-#### **Cucumber Test Execution**
+
+**Cucumber Feature Execution**
 ```sh
 mvn test -Dcucumber.options="src/test/resources/features"
 ```
-#### **Parallel Execution**
+
+**Parallel Execution**
 ```sh
 mvn test -Dgroups=parallel
 ```
 
 ---
 
-## 🤝 **Contributing**
+## 🤝 Contributing
+
 We welcome contributions!  
-- **Fork the repo** and create a feature branch.
-- **Submit a Pull Request (PR)** for review.
+1. Fork the repo  
+2. Create a feature branch  
+3. Submit a pull request 🚀
 
 ---
 
-## 📜 **License**
-This project is licensed under the **MIT License**.
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ---
+
+## ⭐ Support
+
+If you like this framework, don’t forget to **star** 🌟 the repository and share it with others!
