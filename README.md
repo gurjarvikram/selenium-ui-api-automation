@@ -1,154 +1,93 @@
-```md
-# 🚀 UI Selenium WebDriver Automation Framework
+# selenium-ui-api-automation
 
-## 📖 Overview
+Hybrid UI **and** API automation framework for the [Swag Labs style ecommerce demo](https://rahulshettyacademy.com/client/) — Selenium 4, REST Assured, TestNG, with API-driven setup and cross-layer verification.
 
-This framework provides a robust **end-to-end UI automation testing solution** using:
-
-- **Selenium WebDriver**  
-- **TestNG**  
-- **Maven**  
-- **Cucumber (integrated with TestNG)**  
-- **Jenkins (CI/CD ready)**  
-
-It follows **industry best practices** and supports:
-
-- ✅ Data-driven testing (JSON, Excel, HashMap)  
-- ✅ Page Object Model (POM) and Page Factory  
-- ✅ Parallel test execution  
-- ✅ Retry mechanisms & TestNG listeners  
-- ✅ Comprehensive reporting (Extent, Cucumber, TestNG)  
-- ✅ Global configuration management  
-- ✅ Jenkins pipeline integration for CI/CD  
+The UI suite and the API suite target the **same application**: the browser drives `rahulshettyacademy.com/client`, and the API layer talks to that app's own `/api/ecom/*` backend. That is what makes the hybrid layer meaningful rather than two unrelated test sets sharing a repository.
 
 ---
 
-## 🛠️ Technologies Used
+## Why hybrid
 
-| Tool             | Purpose                             |
-|------------------|--------------------------------------|
-| Selenium WebDriver | UI automation                      |
-| Java             | Programming language                 |
-| Maven            | Build and dependency management      |
-| TestNG           | Test runner                          |
-| Cucumber         | BDD framework                        |
-| Jenkins          | Continuous Integration               |
-| Apache POI       | Excel-based data handling            |
-| Extent Reports   | Detailed test execution reports      |
-| JSON             | Parameterized test data              |
+Most UI suites re-drive the login form for every test and assert only on what the front end renders. Both are avoidable.
 
----
+| Pattern | Where | What it buys |
+|---|---|---|
+| **API login, injected session** | `ApiLoginUiJourneyTest` | Token from `/auth/login` is written into `localStorage`, so tests start on the dashboard. Removes a page load and a form round-trip from every test, and a broken login form fails *one* test instead of the whole suite. |
+| **API setup → UI assertion** | `ApiSetupUiVerificationTest` | Seeds a product and an order over the backend, then checks the UI lists it. If it fails, the defect is in *display*, not in checkout. |
+| **UI action → API verification** | `UiOrderApiVerificationTest` | Places the order in the browser, then reads it back from the backend. A confirmation banner only proves the front end *said* the right thing; this proves it was persisted. |
+| **API teardown** | `OrderApiTest`, `ApiSetupUiVerificationTest` | Fixtures are deleted over the API in `@AfterMethod`, so the suite is re-runnable against the same account. |
 
-## 📌 Features
+## Layout
 
-### ✅ TestNG + Selenium
-- Annotations: `@Test`, `@BeforeSuite`, `@AfterSuite`
-- Parallel Execution
-- Data-driven testing using JSON & Excel
-- Test grouping & dependency (`groups`, `dependsOnMethods`)
-- Retry logic via `IRetryAnalyzer`
-- TestNG Listeners: `ITestListener`
-- Multiple test suites via XML
+```
+src/main/java/com/vikram/
+├── core/          ConfigManager · DriverFactory · DriverManager (ThreadLocal)
+├── ui/pages/      Page objects, assertions included · SessionManager
+├── ui/components/ AbstractComponent — shared waits and header navigation
+├── api/clients/   AuthClient · ProductClient · OrderClient
+├── api/specs/     SpecFactory — base, authenticated and multipart specs
+├── api/models/    Request/response POJOs
+├── api/endpoints/ ApiEndpoints enum — every route in one place
+├── reporting/     ExtentReporterNG
+└── utils/         JsonUtils · ScreenshotUtils
 
-### ✅ Cucumber BDD Integration
-- Feature files + step definitions
-- Tag-based selective execution
-- Data-driven scenario parameterization
-- Executed using Cucumber TestNG Runner
-
-### ✅ Reporting
-- **Extent Reports**: test logs, screenshots, results  
-- **Cucumber Reports**: step-wise scenario reports  
-- **TestNG Reports**: default XML + HTML output  
-
-### ✅ Page Object Model (POM)
-- Uses `@FindBy` with PageFactory
-- AbstractComponent for reusable actions
-- Clean, modular test structure
-
-### ✅ Data-Driven Testing
-- JSON: scenario inputs from `.json`
-- Excel: read from `.xlsx` via Apache POI
-- TestNG `@DataProvider` for parametrized tests
-
-### ✅ CI/CD & Parallel Execution
-- Parallel execution via TestNG XML
-- Jenkins-compatible for CI pipeline automation
-- Maven CLI support:
-  ```sh
-  mvn clean test
-  ```
-
----
-
-## 🧱 Project Structure
-
-<pre>
-selenium-framework-automation-java/
-├── reports/              # Auto-generated reports and screenshots
-├── src/                  # Main codebase (Java, POM, Utilities)
-├── testSuites/           # TestNG XML suite files
-├── .gitignore
-├── README.md
-├── pom.xml
-</pre>
-
----
-
-## 🔧 Setup Instructions
-
-### ✅ Prerequisites
-- Java 21+
-- Maven 3.9+
-- ChromeDriver / WebDriver Manager
-- TestNG
-- Jenkins (optional for CI)
-
-### ✅ Clone the Repository
-```sh
-git clone https://github.com/gurjarvikram/selenium-framework-automation-java.git
-cd selenium-framework-automation-java
+src/test/java/com/vikram/
+├── base/          BaseUiTest · BaseApiTest · BaseHybridTest
+├── listeners/     Listeners (Extent + screenshots) · Retry
+└── tests/         ui/ · api/ · hybrid/
 ```
 
-### ✅ Install Dependencies
-```sh
-mvn clean install
+## Running
+
+Credentials are read from the environment and never committed:
+
+```bash
+cp .env.example .env      # fill in a real demo account
+set -a && source .env && set +a
 ```
 
-### ✅ Run Tests
-
-**TestNG Default Execution**
-```sh
-mvn test
+```bash
+mvn test                     # regression (default)
+mvn test -P smoke            # one test per layer — the CI gate
+mvn test -P api              # API only; no browser required
+mvn test -P ui               # browser journeys
+mvn test -P hybrid           # cross-layer tests
 ```
 
-**Cucumber Feature Execution**
-```sh
-mvn test -Dcucumber.options="src/test/resources/features"
+Overrides work as `-Dkey=value` or as upper-cased environment variables:
+
+```bash
+mvn test -P ui -Dbrowser=firefox -Dheadless=true
+mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 ```
 
-**Parallel Execution**
-```sh
-mvn test -Dgroups=parallel
-```
+| Key | Default | Purpose |
+|---|---|---|
+| `browser` | `chrome` | `chrome` · `firefox` · `edge` |
+| `headless` | `false` | Headless run |
+| `grid.url` | *(empty)* | Route at a Selenium Grid instead of a local browser |
+| `ui.base.url` | demo app | Application under test |
+| `api.base.url` | demo backend | API root |
+| `retry.count` | `1` | Retries for a failed test |
 
----
+`ECOM_USER_EMAIL` and `ECOM_USER_PASSWORD` are required and resolve from the environment only.
 
-## 🤝 Contributing
+## Design notes
 
-We welcome contributions!  
-1. Fork the repo  
-2. Create a feature branch  
-3. Submit a pull request 🚀
+**Thread-safe by construction.** Suites run `parallel="classes"`. The driver lives in a `ThreadLocal` inside `DriverManager` rather than on a base-class field, so parallel classes never share a browser. The Extent listener reads the driver from the same place instead of reflecting it off the test instance, which is what lets the API suite — which starts no browser — share one listener.
 
----
+**Configuration fails loudly.** `ConfigManager.get` throws with the key name and the three ways to supply it rather than returning `null`. An unsupported browser name is rejected at driver creation, not silently defaulted.
 
-## 📜 License
+**Grid is a config switch, not a test.** Any suite runs remotely by setting `grid.url`; there is no separate "grid test" class.
 
-This project is licensed under the [MIT License](LICENSE).
+**Reports are build output.** Extent HTML and failure screenshots are written under `target/reports/` and uploaded as CI artifacts, so nothing generated is tracked in git.
 
----
+## CI
 
-## ⭐ Support
+`.github/workflows/ci.yml` runs the API suite first as a fast gate, then fans out UI and hybrid across Chrome and Firefox headless. Reports and failure screenshots upload on every run, including failures. A nightly cron runs the full regression. Credentials come from repository secrets of the same names.
 
-If you like this framework, don’t forget to **star** 🌟 the repository and share it with others!
+## Tooling
+
+Selenium 4.26 · REST Assured 5.5 · TestNG 7.10 · Jackson 2.18 · Extent Reports 5.1 · Java 21 · Maven
+
+Driver binaries are resolved by Selenium Manager, so there is no WebDriverManager dependency and nothing to install.

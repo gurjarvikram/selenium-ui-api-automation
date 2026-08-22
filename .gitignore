@@ -1,63 +1,27 @@
-# ========================================
-# 🔧 Compilation & Build Artifacts
-# ========================================
-*.class
-*.war
-*.jar
-/target/
-/out/
-/build/
-/.gradle/
+# Build output
+target/
+bin/
+out/
 
-# ========================================
-# 📝 Logs & Temp Files
-# ========================================
+# Reports and run artefacts
+reports/
+test-output/
+allure-results/
+allure-report/
 *.log
-*.tmp
-*.bak
-*.swp
-*.swo
-*.~*
+logs/
 
-# ========================================
-# 💻 IDE Specific
-# ========================================
-# Eclipse
+# Secrets
+.env
+
+# IDE
+.idea/
+*.iml
 .classpath
 .project
 .settings/
-/.metadata/
-
-# IntelliJ
-.idea/
-*.iml
-
-# VS Code
 .vscode/
 
-# ========================================
-# 🖥️ OS-Specific Files
-# ========================================
+# OS
 .DS_Store
 Thumbs.db
-
-# ========================================
-# 🧪 Reports, Output, Screenshots
-# ========================================
-/test-output/
-/reports/
-/reports/screenshots/
-/ExtentReport-*/
-/cucumber-reports/
-/testSuites/*.log
-/testSuites/*.tmp
-
-# ========================================
-# 📦 Dependency Folders (Node/JS tools)
-/node_modules/
-
-# ========================================
-# 🔒 Environment or Sensitive Config (customize)
-/src/main/resources/config.properties
-/src/main/resources/*.yaml
-/src/main/resources/*.env

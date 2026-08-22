@@ -4,178 +4,129 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vikram</groupId>
-    <artifactId>selenium-framework-java</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>selenium-ui-api-automation</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>selenium-framework-java</name>
-    <url>http://maven.apache.org</url>
+    <name>selenium-ui-api-automation</name>
+    <description>Hybrid UI and API automation framework built on Selenium 4, REST Assured and TestNG</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>21</maven.compiler.source> <!-- Updated to 21 -->
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+
+        <!-- Overridden by the profiles below; regression is the default suite. -->
+        <suite.file>testSuites/regression.xml</suite.file>
+
+        <selenium.version>4.26.0</selenium.version>
+        <restassured.version>5.5.0</restassured.version>
+        <testng.version>7.10.2</testng.version>
+        <jackson.version>2.18.2</jackson.version>
+        <extentreports.version>5.1.2</extentreports.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <surefire.version>3.5.2</surefire.version>
+        <compiler.version>3.13.0</compiler.version>
     </properties>
 
     <profiles>
+        <!-- API only: no browser needed, so CI can run this as a fast gate. -->
         <profile>
-            <id>Regression</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.5.2</version>
-                        <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>testSuites/testng.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <id>api</id>
+            <properties>
+                <suite.file>testSuites/api.xml</suite.file>
+            </properties>
         </profile>
 
+        <!-- Browser-only journeys. -->
         <profile>
-            <id>purchaseTest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.5.2</version>
-                        <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>testSuites/purchaseTest.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <id>ui</id>
+            <properties>
+                <suite.file>testSuites/ui.xml</suite.file>
+            </properties>
         </profile>
 
+        <!-- Cross-layer tests: API setup with UI assertions and the reverse. -->
         <profile>
-            <id>errorValidationTests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.5.2</version>
-                        <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>testSuites/errorValidationTests.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <id>hybrid</id>
+            <properties>
+                <suite.file>testSuites/hybrid.xml</suite.file>
+            </properties>
         </profile>
-        
-          	<profile>
-  		<id> CucumberTests </id>
-  		<build>
-    		<pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      			<plugins>      
-      				<plugin>
-        				<groupId>org.apache.maven.plugins</groupId>
-        				<artifactId>maven-surefire-plugin</artifactId>
-        				<version>3.5.2</version>
-        				<configuration>
-          			<includes>
-          			<include> **/TestNGTestRunner.java</include>            			
-          			</includes>
-        			</configuration>
-      				</plugin>
-  	 			</plugins>
-  	 		</pluginManagement>
-  	 </build>	
-  	</profile>
-        
+
+        <!-- Fast confidence check across all three layers. -->
+        <profile>
+            <id>smoke</id>
+            <properties>
+                <suite.file>testSuites/smoke.xml</suite.file>
+            </properties>
+        </profile>
     </profiles>
 
     <build>
         <plugins>
-            <!-- Maven Compiler Plugin -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${compiler.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${suite.file}</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <!-- A suite with no matching tests is a misconfiguration, not a pass. -->
+                    <failIfNoSpecifiedTests>true</failIfNoSpecifiedTests>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
-    
+        <!-- Browser automation. Selenium Manager resolves drivers, so no WebDriverManager. -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.26.0</version>
+            <version>${selenium.version}</version>
         </dependency>
-        
+
+        <!-- API layer. -->
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>7.7.1</version>
-            <scope>test</scope>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
         </dependency>
-        
         <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>5.9.2</version>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${restassured.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.18.2</version>
+            <version>${jackson.version}</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.aventstack</groupId>
             <artifactId>extentreports</artifactId>
-            <version>5.1.2</version>
+            <version>${extentreports.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.5</version>
+            <version>${slf4j.version}</version>
         </dependency>
-        
-        	<!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-java -->
-		<dependency>
-    		<groupId>io.cucumber</groupId>
-    		<artifactId>cucumber-java</artifactId>
-    		<version>7.21.1</version>
-		</dependency>
-	
-		<!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-testng -->
-		<dependency>
-    		<groupId>io.cucumber</groupId>
-    		<artifactId>cucumber-testng</artifactId>
-    		<version>7.21.1</version>
-		</dependency>
-
-        
-        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
-		<dependency>
-    		<groupId>org.apache.poi</groupId>
-    		<artifactId>poi</artifactId>
-    		<version>5.3.0</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
-		<dependency>
-    		<groupId>org.apache.poi</groupId>
-    		<artifactId>poi-ooxml</artifactId>
-    		<version>5.3.0</version>
-		</dependency>
-
-        
     </dependencies>
 </project>

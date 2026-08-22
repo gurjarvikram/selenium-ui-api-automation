@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- No browser is started here, so this suite runs anywhere and finishes in seconds. -->
+<suite name="API Suite" parallel="classes" thread-count="3">
+	<listeners>
+		<listener class-name="com.vikram.listeners.Listeners" />
+	</listeners>
+	<test name="API contracts">
+		<packages>
+			<package name="com.vikram.tests.api" />
+		</packages>
+	</test>
+</suite>
