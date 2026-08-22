@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -54,9 +56,29 @@ public final class Waits {
 		until().until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
 	}
 
-	/** Clicks once the element is genuinely clickable, rather than as soon as it exists. */
+	/**
+	 * Clicks, retrying until the click actually lands or the timeout expires.
+	 *
+	 * elementToBeClickable is not sufficient on this application: the button can be
+	 * visible and enabled while a loading overlay still sits on top of it, and Chrome
+	 * then reports ElementClickInterceptedException. Waiting for the overlay to clear
+	 * beforehand does not fix it either, because the overlay is often not in the DOM yet
+	 * at that moment -- an invisibility check passes, the overlay renders, and the click
+	 * is swallowed. Retrying the click itself is what closes that race, and it is what
+	 * the original Thread.sleep(2000) was standing in for.
+	 */
 	public void click(By locator) {
-		clickable(locator).click();
+		until()
+				.ignoring(ElementClickInterceptedException.class)
+				.ignoring(StaleElementReferenceException.class)
+				.until(driver -> {
+					WebElement element = driver.findElement(locator);
+					if (!element.isDisplayed() || !element.isEnabled()) {
+						return null;
+					}
+					element.click();
+					return true;
+				});
 	}
 
 	public void type(By locator, String text) {

@@ -40,6 +40,8 @@ public class ProductCatalogue extends AbstractComponent {
 
 	public ProductCatalogue addProductToCart(String productName) {
 		getProductByName(productName).findElement(locator("addToCart")).click();
+		// The toast confirms the item landed; the spinner clear keeps the next
+		// interaction from racing the overlay, and Waits.click covers the remainder.
 		waits.visible(common("toast"));
 		waitForSpinnerToClear();
 		return this;
