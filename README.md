@@ -69,6 +69,7 @@ mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 | `ui.base.url` | demo app | Application under test |
 | `api.base.url` | demo backend | API root |
 | `retry.count` | `1` | Retries for a failed test |
+| `api.log.requests` | `false` | Log API request/response bodies while debugging |
 
 `ECOM_USER_EMAIL` and `ECOM_USER_PASSWORD` are required and resolve from the environment only.
 

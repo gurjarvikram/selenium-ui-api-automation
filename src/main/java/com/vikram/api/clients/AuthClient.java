@@ -19,7 +19,7 @@ public class AuthClient {
 	 */
 	public LoginResponse login(String email, String password) {
 		return given()
-				.spec(SpecFactory.base())
+				.spec(SpecFactory.credentials())
 				.body(new LoginRequest(email, password))
 				.when()
 				.post(ApiEndpoints.LOGIN.path())
@@ -38,7 +38,7 @@ public class AuthClient {
 	/** Raw response, so negative tests can assert on non-200 status codes. */
 	public Response attemptLogin(String email, String password) {
 		return given()
-				.spec(SpecFactory.base())
+				.spec(SpecFactory.credentials())
 				.body(new LoginRequest(email, password))
 				.when()
 				.post(ApiEndpoints.LOGIN.path());
