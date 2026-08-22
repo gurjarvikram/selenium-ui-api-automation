@@ -3,6 +3,7 @@
 <suite name="Hybrid Suite" parallel="classes" thread-count="2">
 	<listeners>
 		<listener class-name="com.vikram.listeners.Listeners" />
+		<listener class-name="com.vikram.listeners.RetryTransformer" />
 	</listeners>
 	<test name="Cross-layer UI and API">
 		<packages>

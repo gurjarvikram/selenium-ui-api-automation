@@ -1,56 +1,42 @@
 package com.vikram.ui.pages;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import com.vikram.core.ConfigManager;
 import com.vikram.ui.components.AbstractComponent;
 
+/** Login screen. */
 public class LandingPage extends AbstractComponent {
-
-	WebDriver driver;
 
 	public LandingPage(WebDriver driver) {
 		super(driver);
-		this.driver = driver;
-		PageFactory.initElements(driver, this);
-
 	}
 
-	// PageFactory
-	@FindBy(id = "userEmail")
-	private WebElement userEmailField;
-
-	@FindBy(id = "userPassword")
-	private WebElement passwordField;
-
-	@FindBy(id = "login")
-	private WebElement loginButton;
-	
-	@FindBy(css = "[class*='flyInOut']")
-	private WebElement errorMessage;
-
-	
-	public ProductCatalogue loginApplication(String email, String password) {
-		
-		userEmailField.sendKeys(email);
-		passwordField.sendKeys(password);
-		loginButton.click();
-		
-		ProductCatalogue productCatalogue = new ProductCatalogue(driver);
-		return productCatalogue;
+	@Override
+	protected String pageName() {
+		return "landing-page";
 	}
 
-	public String getErrorMessage() {
-		waitForWebElementToAppear(errorMessage);
-		return errorMessage.getText();
-
-	}
-	
 	public void goTo() {
 		driver.get(ConfigManager.get("ui.base.url"));
 	}
 
+	public ProductCatalogue loginApplication(String email, String password) {
+		waits.type(locator("userEmail"), email);
+		waits.type(locator("userPassword"), password);
+		waits.click(locator("loginButton"));
+		return new ProductCatalogue(driver);
+	}
+
+	/** Submits credentials expected to be rejected, leaving the browser on this page. */
+	public LandingPage loginExpectingFailure(String email, String password) {
+		waits.type(locator("userEmail"), email);
+		waits.type(locator("userPassword"), password);
+		waits.click(locator("loginButton"));
+		return this;
+	}
+
+	public String getErrorMessage() {
+		return waits.visible(locator("errorMessage")).getText();
+	}
 }

@@ -1,57 +1,51 @@
 package com.vikram.tests.ui;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
-import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.vikram.base.BaseUiTest;
 import com.vikram.core.ConfigManager;
-import com.vikram.listeners.Retry;
 import com.vikram.ui.pages.CartPage;
 import com.vikram.ui.pages.CheckoutPage;
 import com.vikram.ui.pages.ConfirmationPage;
-import com.vikram.ui.pages.OrderPage;
 import com.vikram.ui.pages.ProductCatalogue;
+import com.vikram.utils.JsonUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /** End-to-end purchase journey driven entirely through the browser. */
 public class SubmitOrderTest extends BaseUiTest {
 
-	@Test(dataProvider = "purchaseData", groups = { "smoke", "regression" }, retryAnalyzer = Retry.class)
-	public void submitOrder(HashMap<String, String> data) {
+	private static final String FIXTURE = "testdata/purchase-orders.json";
+
+	@Test(dataProvider = "customers", groups = { "smoke", "regression" })
+	public void submitOrder(String role, Map<String, String> data) {
+		log.info("Placing an order as '{}' for '{}'", role, data.get("product"));
+
 		ProductCatalogue catalogue = landingPage.loginApplication(
 				ConfigManager.getSecret("ECOM_USER_EMAIL"),
 				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
 
-		catalogue.addProductToCart(data.get("product"));
-		CartPage cartPage = catalogue.goToCartPage();
-		Assert.assertTrue(cartPage.verifyProductDisplay(data.get("product")),
-				"Product '" + data.get("product") + "' should appear in the cart");
+		CartPage cartPage = catalogue.addProductToCart(data.get("product")).goToCartPage();
+		assertThat(cartPage.isProductDisplayed(data.get("product")))
+				.as("cart should contain '%s' after adding it", data.get("product"))
+				.isTrue();
 
 		CheckoutPage checkoutPage = cartPage.goToCheckout();
-		checkoutPage.selectCountry(data.get("country"));
-		ConfirmationPage confirmationPage = checkoutPage.submitOrder();
+		ConfirmationPage confirmation = checkoutPage.selectCountry(data.get("country")).submitOrder();
 
-		Assert.assertEquals(confirmationPage.getConfirmationMessage().toUpperCase(),
-				"THANKYOU FOR THE ORDER.", "Order confirmation message mismatch");
+		assertThat(confirmation.getConfirmationMessage().toUpperCase())
+				.as("order confirmation message")
+				.isEqualTo(data.get("expectedConfirmation"));
 	}
 
-	@Test(groups = { "regression" }, dependsOnMethods = "submitOrder")
-	public void orderAppearsInHistory() {
-		ProductCatalogue catalogue = landingPage.loginApplication(
-				ConfigManager.getSecret("ECOM_USER_EMAIL"),
-				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
-
-		OrderPage orderPage = catalogue.goToOrderPage();
-		Assert.assertTrue(orderPage.verifyOrderDisplay("ZARA COAT 3"),
-				"Previously placed order should be listed in order history");
-	}
-
-	@DataProvider(name = "purchaseData")
-	public Object[][] purchaseData() {
-		List<HashMap<String, String>> rows = readTestData("testdata/purchase-order.json");
-		return rows.stream().map(row -> new Object[] { row }).toArray(Object[][]::new);
+	/** Feeds every role in the fixture, so adding a customer needs no code change. */
+	@DataProvider(name = "customers")
+	public Object[][] customers() {
+		return JsonUtils.readRoles(FIXTURE).entrySet().stream()
+				.map(entry -> new Object[] { entry.getKey(), entry.getValue() })
+				.toArray(Object[][]::new);
 	}
 }

@@ -1,77 +1,56 @@
 package com.vikram.ui.components;
 
-import java.time.Duration;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.vikram.ui.ObjectRepository;
+import com.vikram.ui.Waits;
 import com.vikram.ui.pages.CartPage;
 import com.vikram.ui.pages.OrderPage;
 
-public class AbstractComponent {
+/**
+ * Behaviour shared by every authenticated page: the header controls and the waits.
+ *
+ * Locators come from the object repository rather than PageFactory annotations. Plain
+ * By lookups are re-resolved on each use, so they do not go stale the way a cached
+ * PageFactory proxy does when the page re-renders.
+ */
+public abstract class AbstractComponent {
 
-	WebDriver driver;
+	protected static final String COMMON = "common";
 
-	public AbstractComponent(WebDriver driver) {
+	protected final WebDriver driver;
+	protected final Waits waits;
+
+	protected AbstractComponent(WebDriver driver) {
 		this.driver = driver;
-		PageFactory.initElements(driver, this);
+		this.waits = new Waits(driver);
 	}
 
-	// PageFactory
-	@FindBy(css = "button[routerlink*='/dashboard/cart']")
-	WebElement cartHeader;
-	
-	@FindBy(css = "button[routerlink*='/dashboard/myorders']")
-	WebElement orderHeader;
-
-	public void waitForElementToAppear(By findBy) {
-
-		// Explicit wait for product list
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-		wait.until(ExpectedConditions.visibilityOfElementLocated(findBy));
-
+	/** Resolves a locator from this page's own repository file. */
+	protected By locator(String key) {
+		return ObjectRepository.by(pageName(), key);
 	}
-	public void waitForWebElementToAppear(WebElement findBy) {
 
-		// Explicit wait for product list
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(7));
-		wait.until(ExpectedConditions.visibilityOf(findBy));
-
+	protected By common(String key) {
+		return ObjectRepository.by(COMMON, key);
 	}
+
+	/** Object repository file backing this page, without the .properties suffix. */
+	protected abstract String pageName();
 
 	public CartPage goToCartPage() {
-
-		// Ensure the cart button is clickable
-		cartHeader.click();
-
-		CartPage cartPage = new CartPage(driver);
-		return cartPage;
-
+		waits.click(common("cartHeader"));
+		return new CartPage(driver);
 	}
-	
+
 	public OrderPage goToOrderPage() {
-
-		// Ensure the cart button is clickable
-		orderHeader.click();
-
-		OrderPage orderPage = new OrderPage(driver);
-		return orderPage;
-
+		waits.click(common("ordersHeader"));
+		return new OrderPage(driver);
 	}
 
-	/**
-	 * Waits for a spinner or overlay to clear. Uses an explicit invisibility condition
-	 * rather than a fixed sleep, so a fast page does not pay a fixed toll and a slow one
-	 * is not cut off early.
-	 */
-	public void waitForElementToDisappear(WebElement ele) {
-		new WebDriverWait(driver, Duration.ofSeconds(10))
-				.until(ExpectedConditions.invisibilityOf(ele));
+	/** Waits for the loading overlay to clear before the next interaction. */
+	protected void waitForSpinnerToClear() {
+		waits.invisible(common("spinner"));
 	}
-
 }

@@ -22,10 +22,13 @@
         <restassured.version>6.0.1</restassured.version>
         <testng.version>7.12.0</testng.version>
         <jackson.version>2.22.2</jackson.version>
+        <assertj.version>3.27.7</assertj.version>
         <extentreports.version>5.1.2</extentreports.version>
         <slf4j.version>2.0.18</slf4j.version>
         <surefire.version>3.5.6</surefire.version>
         <compiler.version>3.15.0</compiler.version>
+        <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+        <enforcer.version>3.5.0</enforcer.version>
     </properties>
 
     <profiles>
@@ -68,6 +71,46 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler.version}</version>
+            </plugin>
+
+            <!-- Quality gate: fails the build before a single test runs. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>config/checkstyle.xml</configLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <violationSeverity>error</violationSeverity>
+                    <failOnViolation>true</failOnViolation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals><goal>check</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Guards against split dependency versions creeping back in. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${enforcer.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion><version>[3.8,)</version></requireMavenVersion>
+                                <requireJavaVersion><version>[21,)</version></requireJavaVersion>
+                                <banDuplicatePomDependencyVersions/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -115,6 +158,13 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
+        </dependency>
+
+        <!-- Fluent assertions: failure messages name the subject and the expectation. -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
         </dependency>
 
         <dependency>

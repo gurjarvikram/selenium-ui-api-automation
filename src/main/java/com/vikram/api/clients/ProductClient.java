@@ -6,10 +6,15 @@ import com.vikram.api.endpoints.ApiEndpoints;
 import com.vikram.api.models.Product;
 import com.vikram.api.specs.SpecFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.restassured.response.Response;
 
 /** Product lifecycle calls, used mainly to seed and clean up fixtures. */
 public class ProductClient {
+
+	private static final Logger log = LoggerFactory.getLogger(ProductClient.class);
 
 	private final String token;
 
@@ -56,7 +61,7 @@ public class ProductClient {
 		try {
 			deleteProduct(productId);
 		} catch (RuntimeException e) {
-			System.err.println("Cleanup failed for product " + productId + ": " + e.getMessage());
+			log.warn("Cleanup failed for product {}: {}", productId, e.getMessage());
 		}
 	}
 }

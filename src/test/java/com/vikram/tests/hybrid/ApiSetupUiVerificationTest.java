@@ -1,6 +1,5 @@
 package com.vikram.tests.hybrid;
 
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -10,6 +9,8 @@ import com.vikram.ui.pages.OrderPage;
 import com.vikram.ui.pages.ProductCatalogue;
 
 import io.restassured.response.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Set the state up over the API, then assert the UI renders it.
@@ -31,13 +32,14 @@ public class ApiSetupUiVerificationTest extends BaseHybridTest {
 						.withName(FIXTURE_PRODUCT));
 
 		Response order = orderClient.createOrder(productId, "India");
-		Assert.assertEquals(order.statusCode(), 201, "Precondition: order must be created over the API");
+		assertThat(order.statusCode()).as("precondition: order created over the API").isEqualTo(201);
 
 		ProductCatalogue catalogue = session.loginViaApiAsDefaultUser();
 		OrderPage orderPage = catalogue.goToOrderPage();
 
-		Assert.assertTrue(orderPage.verifyOrderDisplay(FIXTURE_PRODUCT),
-				"Order created over the API should be visible in the UI order history");
+		assertThat(orderPage.isOrderDisplayed(FIXTURE_PRODUCT))
+				.as("order created over the API should be visible in the UI order history")
+				.isTrue();
 	}
 
 	/** Tolerates a null client so a failed setup reports its own cause, not an NPE. */

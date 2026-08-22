@@ -1,32 +1,22 @@
 package com.vikram.ui.pages;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import com.vikram.ui.components.AbstractComponent;
 
+/** Post-order confirmation. */
 public class ConfirmationPage extends AbstractComponent {
-
-	WebDriver driver;
 
 	public ConfirmationPage(WebDriver driver) {
 		super(driver);
-		this.driver = driver;
-		PageFactory.initElements(driver, this);
-
 	}
 
-	// pageFactory
-
-	@FindBy(css = ".hero-primary")
-	private WebElement confirmationMessage;
+	@Override
+	protected String pageName() {
+		return "confirmation-page";
+	}
 
 	public String getConfirmationMessage() {
-
-		return confirmationMessage.getText();
-
+		return waits.visible(locator("confirmationMessage")).getText();
 	}
-
 }

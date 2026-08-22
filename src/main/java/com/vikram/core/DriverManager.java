@@ -2,6 +2,8 @@ package com.vikram.core;
 
 import org.openqa.selenium.WebDriver;
 
+import com.vikram.core.exceptions.FrameworkException;
+
 /**
  * Holds one WebDriver per thread.
  *
@@ -22,7 +24,7 @@ public final class DriverManager {
 	public static WebDriver get() {
 		WebDriver driver = DRIVER.get();
 		if (driver == null) {
-			throw new IllegalStateException(
+			throw new FrameworkException(
 					"No WebDriver bound to thread '" + Thread.currentThread().getName()
 							+ "'. Did the test extend BaseUiTest?");
 		}

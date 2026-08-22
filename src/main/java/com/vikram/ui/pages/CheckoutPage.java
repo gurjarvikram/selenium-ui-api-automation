@@ -1,56 +1,35 @@
 package com.vikram.ui.pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import com.vikram.ui.components.AbstractComponent;
 
+/** Delivery details and order submission. */
 public class CheckoutPage extends AbstractComponent {
-
-	WebDriver driver;
 
 	public CheckoutPage(WebDriver driver) {
 		super(driver);
-		this.driver = driver;
-		PageFactory.initElements(driver, this);
-
 	}
 
-	// pageFactory
-	@FindBy(css = ".action__submit")
-	private WebElement submit;
+	@Override
+	protected String pageName() {
+		return "checkout-page";
+	}
 
-	@FindBy(css = "input[placeholder='Select Country']")
-	private WebElement country;
-
-	@FindBy(xpath = "(//button[contains(@class,'ta-item')])[2]")
-	private WebElement selectCountry;
-
-	
-	private By result = By.cssSelector(".ta-results");
-	
-
-	public void selectCountry(String countryName) {
-
-		Actions a = new Actions(driver);
-		a.sendKeys(country, countryName).perform();
-
-		// Wait for the country to appear
-		waitForElementToAppear(result);
-
-		// select the country
-		selectCountry.click();
-
+	/**
+	 * The country field is an autocomplete: it needs real keystrokes to trigger its
+	 * suggestion list, which is why this uses Actions rather than sendKeys.
+	 */
+	public CheckoutPage selectCountry(String countryName) {
+		new Actions(driver).sendKeys(waits.visible(locator("countryInput")), countryName).perform();
+		waits.visible(locator("countryResults"));
+		waits.click(locator("countrySuggestion"));
+		return this;
 	}
 
 	public ConfirmationPage submitOrder() {
-
-		submit.click();
+		waits.click(locator("placeOrder"));
 		return new ConfirmationPage(driver);
 	}
-
 }

@@ -15,9 +15,25 @@ env:
   ECOM_USER_PASSWORD: ${{ secrets.ECOM_USER_PASSWORD }}
 
 jobs:
+  # Static analysis gate. Runs first and blocks everything else, so a style or
+  # anti-pattern regression never reaches the point of spending browser minutes.
+  quality:
+    name: Quality gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+      - name: Checkstyle and enforcer
+        run: mvn -B checkstyle:check enforcer:enforce
+
   # Fast gate: no browser, so it finishes in seconds and catches contract breaks early.
   api:
     name: API contracts
+    needs: quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

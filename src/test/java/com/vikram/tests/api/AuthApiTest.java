@@ -1,6 +1,5 @@
 package com.vikram.tests.api;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.vikram.api.models.LoginResponse;
@@ -8,6 +7,8 @@ import com.vikram.base.BaseApiTest;
 import com.vikram.core.ConfigManager;
 
 import io.restassured.response.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /** Contract checks on the login endpoint. */
 public class AuthApiTest extends BaseApiTest {
@@ -18,9 +19,8 @@ public class AuthApiTest extends BaseApiTest {
 				ConfigManager.getSecret("ECOM_USER_EMAIL"),
 				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
 
-		Assert.assertNotNull(response.getToken(), "Login should return an auth token");
-		Assert.assertFalse(response.getToken().isBlank(), "Auth token should not be blank");
-		Assert.assertNotNull(response.getUserId(), "Login should return a user id");
+		assertThat(response.getToken()).as("auth token").isNotNull().isNotBlank();
+		assertThat(response.getUserId()).as("user id").isNotNull().isNotBlank();
 	}
 
 	@Test(groups = { "negative", "api" })
@@ -28,9 +28,9 @@ public class AuthApiTest extends BaseApiTest {
 		Response response = authClient.attemptLogin(
 				ConfigManager.getSecret("ECOM_USER_EMAIL"), "DefinitelyWrong@123?");
 
-		Assert.assertEquals(response.statusCode(), 400,
-				"A wrong password should be rejected with 400");
-		Assert.assertEquals(response.jsonPath().getString("message"), "Incorrect email or password.",
-				"Error message should match the documented contract");
+		assertThat(response.statusCode()).as("status for a wrong password").isEqualTo(400);
+		assertThat(response.jsonPath().getString("message"))
+				.as("documented error message")
+				.isEqualTo("Incorrect email or password.");
 	}
 }

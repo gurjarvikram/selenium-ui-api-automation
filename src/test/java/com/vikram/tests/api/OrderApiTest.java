@@ -1,6 +1,5 @@
 package com.vikram.tests.api;
 
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -8,6 +7,8 @@ import com.vikram.api.models.Product;
 import com.vikram.base.BaseApiTest;
 
 import io.restassured.response.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Product and order lifecycle over the API alone.
@@ -24,11 +25,11 @@ public class OrderApiTest extends BaseApiTest {
 		createdProductId = productClient.addProduct(
 				Product.defaults(session.getUserId(), fixture("testdata/product-image.png")));
 
-		Assert.assertNotNull(createdProductId, "add-product should return the new product id");
+		assertThat(createdProductId).as("new product id from add-product").isNotNull().isNotBlank();
 
 		Response deleted = productClient.deleteProduct(createdProductId);
-		Assert.assertEquals(deleted.statusCode(), 200, "Product deletion should succeed");
-		Assert.assertEquals(deleted.jsonPath().getString("message"), "Product Deleted Successfully");
+		assertThat(deleted.statusCode()).as("delete-product status").isEqualTo(200);
+		assertThat(deleted.jsonPath().getString("message")).isEqualTo("Product Deleted Successfully");
 		createdProductId = null;
 	}
 
@@ -40,8 +41,8 @@ public class OrderApiTest extends BaseApiTest {
 
 		Response order = orderClient.createOrder(createdProductId, "India");
 
-		Assert.assertEquals(order.statusCode(), 201, "Order creation should return 201");
-		Assert.assertEquals(order.jsonPath().getString("message"), "Order Placed Successfully");
+		assertThat(order.statusCode()).as("create-order status").isEqualTo(201);
+		assertThat(order.jsonPath().getString("message")).isEqualTo("Order Placed Successfully");
 	}
 
 	/**

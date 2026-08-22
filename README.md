@@ -22,18 +22,23 @@ Most UI suites re-drive the login form for every test and assert only on what th
 ```
 src/main/java/com/vikram/
 ├── core/          ConfigManager · DriverFactory · DriverManager (ThreadLocal)
-├── ui/pages/      Page objects, assertions included · SessionManager
-├── ui/components/ AbstractComponent — shared waits and header navigation
+├── ui/pages/      Page objects · SessionManager
+├── ui/components/ AbstractComponent — shared header navigation
+├── ui/            ObjectRepository (locators) · Waits (explicit-only)
 ├── api/clients/   AuthClient · ProductClient · OrderClient
 ├── api/specs/     SpecFactory — base, authenticated and multipart specs
 ├── api/models/    Request/response POJOs
 ├── api/endpoints/ ApiEndpoints enum — every route in one place
+├── core/exceptions/ FrameworkException · ConfigurationException
 ├── reporting/     ExtentReporterNG
 └── utils/         JsonUtils · ScreenshotUtils
 
+src/main/resources/objectrepository/   one .properties file per page
+src/test/resources/config/             config.properties + env-{name}.properties
+
 src/test/java/com/vikram/
 ├── base/          BaseUiTest · BaseApiTest · BaseHybridTest
-├── listeners/     Listeners (Extent + screenshots) · Retry
+├── listeners/     Listeners (Extent + screenshots) · Retry · RetryTransformer
 └── tests/         ui/ · api/ · hybrid/
 ```
 
@@ -66,14 +71,26 @@ mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 | `browser` | `chrome` | `chrome` · `firefox` · `edge` |
 | `headless` | `false` | Headless run |
 | `grid.url` | *(empty)* | Route at a Selenium Grid instead of a local browser |
-| `ui.base.url` | demo app | Application under test |
-| `api.base.url` | demo backend | API root |
-| `retry.count` | `1` | Retries for a failed test |
+| `retry.count` | `1` | Retries for a failed test, applied to every test |
+| `env` | `demo` | Environment profile; an unknown name fails the build |
+| `timeout.explicit.seconds` | `15` | Explicit wait ceiling |
 | `api.log.requests` | `false` | Log API request/response bodies while debugging |
 
 `ECOM_USER_EMAIL` and `ECOM_USER_PASSWORD` are required and resolve from the environment only.
 
 ## Design notes
+
+**Locators live outside the code.** Each page has a file under `src/main/resources/objectrepository/` holding `name = strategy:value` entries. A markup change is a one-line edit in a data file, and every locator for a page is visible in one place. `ObjectRepository` parses and caches them, failing with the available keys when one is missing. Page objects use plain `By` lookups rather than PageFactory proxies, which re-resolve on each use and so do not go stale when the page re-renders.
+
+**Explicit waits only — no implicit wait is ever set.** Mixing the two makes timeouts unpredictable: the implicit wait applies inside each polling cycle of the explicit one, so a documented 15-second wait can take far longer, and a negative check that should fail fast pays the implicit timeout on every poll. Everything goes through `Waits`, and Checkstyle fails the build if `implicitlyWait` or `Thread.sleep` reappears.
+
+**Configuration is layered and rejects unknown environments.** Shared defaults sit in `config.properties`; per-deployment values in `env-{name}.properties`. `-Denv=staging` with no matching profile fails immediately, naming the known environments — a typo in a CI variable stops the build instead of quietly running against the wrong target.
+
+**Test data is role-keyed, not positional.** Fixtures map a role name to its fields, so a test asks for `standardCustomer` rather than row 0 and reordering the file cannot silently repoint a test at different data.
+
+**Failures are typed.** A `FrameworkException` means the harness is misconfigured and no assertion ran; an `AssertionError` means the application misbehaved. That distinction is what makes a red build triageable at a glance.
+
+**Retry is uniform.** `RetryTransformer` applies the analyser to every test through the suite files. Previously three of seven classes opted in by annotation and the rest silently did not. Every retry is logged so flakiness stays visible.
 
 **Thread-safe by construction.** Suites run `parallel="classes"`. The driver lives in a `ThreadLocal` inside `DriverManager` rather than on a base-class field, so parallel classes never share a browser. The Extent listener reads the driver from the same place instead of reflecting it off the test instance, which is what lets the API suite — which starts no browser — share one listener.
 
@@ -85,10 +102,12 @@ mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 
 ## CI
 
-`.github/workflows/ci.yml` runs the API suite first as a fast gate, then fans out UI and hybrid across Chrome and Firefox headless. Reports and failure screenshots upload on every run, including failures. A nightly cron runs the full regression. Credentials come from repository secrets of the same names.
+`.github/workflows/ci.yml` runs a **quality gate** first — Checkstyle and enforcer — which blocks everything downstream, so a style or anti-pattern regression never spends browser minutes. Then the API suite as a fast functional gate, then UI and hybrid fanned out across Chrome and Firefox headless. Reports and failure screenshots upload on every run, including failures. A nightly cron runs the full regression. Credentials come from repository secrets of the same names.
 
 ## Tooling
 
-Selenium 4.47 · REST Assured 6.0 · TestNG 7.12 · Jackson 2.22 · Extent Reports 5.1 · Java 21 (LTS) · Maven
+Selenium 4.47 · REST Assured 6.0 · AssertJ 3.27 · TestNG 7.12 · Jackson 2.22 · Extent Reports 5.1 · Java 21 (LTS) · Maven
+
+Dependabot keeps Maven dependencies and GitHub Actions current, grouped so Selenium and the test tooling arrive as single PRs.
 
 Driver binaries are resolved by Selenium Manager, so there is no WebDriverManager dependency and nothing to install.

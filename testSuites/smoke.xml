@@ -4,6 +4,7 @@
 <suite name="Smoke Suite" parallel="classes" thread-count="3">
 	<listeners>
 		<listener class-name="com.vikram.listeners.Listeners" />
+		<listener class-name="com.vikram.listeners.RetryTransformer" />
 	</listeners>
 	<test name="Smoke">
 		<groups>

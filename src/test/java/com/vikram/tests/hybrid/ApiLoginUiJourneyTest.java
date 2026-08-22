@@ -1,14 +1,14 @@
 package com.vikram.tests.hybrid;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.vikram.base.BaseHybridTest;
-import com.vikram.listeners.Retry;
 import com.vikram.ui.pages.CartPage;
 import com.vikram.ui.pages.CheckoutPage;
 import com.vikram.ui.pages.ConfirmationPage;
 import com.vikram.ui.pages.ProductCatalogue;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The same purchase journey as the UI suite, but authenticated over the API.
@@ -20,20 +20,20 @@ import com.vikram.ui.pages.ProductCatalogue;
  */
 public class ApiLoginUiJourneyTest extends BaseHybridTest {
 
-	@Test(groups = { "smoke", "hybrid" }, retryAnalyzer = Retry.class)
+	@Test(groups = { "smoke", "hybrid" })
 	public void completesCheckoutAfterApiLogin() {
 		ProductCatalogue catalogue = session.loginViaApiAsDefaultUser();
 
-		catalogue.addProductToCart("ZARA COAT 3");
-		CartPage cartPage = catalogue.goToCartPage();
-		Assert.assertTrue(cartPage.verifyProductDisplay("ZARA COAT 3"),
-				"Product added after API login should be in the cart");
+		CartPage cartPage = catalogue.addProductToCart("ZARA COAT 3").goToCartPage();
+		assertThat(cartPage.isProductDisplayed("ZARA COAT 3"))
+				.as("product added after API login should be in the cart")
+				.isTrue();
 
 		CheckoutPage checkoutPage = cartPage.goToCheckout();
-		checkoutPage.selectCountry("India");
-		ConfirmationPage confirmation = checkoutPage.submitOrder();
+		ConfirmationPage confirmation = checkoutPage.selectCountry("India").submitOrder();
 
-		Assert.assertEquals(confirmation.getConfirmationMessage().toUpperCase(),
-				"THANKYOU FOR THE ORDER.", "Order placed via API-seeded session should confirm");
+		assertThat(confirmation.getConfirmationMessage().toUpperCase())
+				.as("order placed from an API-seeded session should confirm")
+				.isEqualTo("THANKYOU FOR THE ORDER.");
 	}
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<!--
+  Deliberately narrow. These rules catch things that cause real defects or real review
+  churn; they are not a formatting opinion, so the build gate stays meaningful rather
+  than becoming noise everyone learns to ignore.
+-->
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <module name="NewlineAtEndOfFile"/>
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="false"/>
+        <property name="severity" value="ignore"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Dead or accidental code -->
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="EmptyStatement"/>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+
+        <!-- Correctness traps -->
+        <module name="EqualsHashCode"/>
+        <module name="StringLiteralEquality"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="FallThrough"/>
+        <module name="IllegalCatch">
+            <property name="illegalClassNames" value="java.lang.Throwable, java.lang.Error"/>
+        </module>
+
+        <!-- Anti-patterns specific to a test framework -->
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="Thread\.sleep\("/>
+            <property name="message" value="Use an explicit wait (com.vikram.ui.Waits) instead of Thread.sleep."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="System\.(out|err)\.print"/>
+            <property name="message" value="Use an SLF4J logger instead of printing to the console."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="implicitlyWait"/>
+            <property name="message" value="Implicit waits must not be mixed with the explicit waits this framework uses."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+    </module>
+</module>

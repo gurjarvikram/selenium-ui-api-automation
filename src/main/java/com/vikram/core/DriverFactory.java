@@ -16,6 +16,10 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vikram.core.exceptions.ConfigurationException;
 
 /**
  * Builds a WebDriver from configuration.
@@ -26,6 +30,8 @@ import org.openqa.selenium.remote.RemoteWebDriver;
  */
 public final class DriverFactory {
 
+	private static final Logger log = LoggerFactory.getLogger(DriverFactory.class);
+
 	private DriverFactory() {
 	}
 
@@ -35,11 +41,15 @@ public final class DriverFactory {
 		String gridUrl = ConfigManager.get("grid.url", "");
 
 		MutableCapabilities options = optionsFor(browser, headless);
+		log.info("Starting {} ({}) {}", browser, headless ? "headless" : "headed",
+				gridUrl.isBlank() ? "locally" : "on grid " + gridUrl);
+
 		WebDriver driver = gridUrl.isBlank() ? local(browser, options) : remote(gridUrl, options);
 
 		driver.manage().window().setSize(new Dimension(1440, 900));
+		// No implicit wait is set anywhere: see Waits for why the two must not be mixed.
 		driver.manage().timeouts()
-				.implicitlyWait(Duration.ofSeconds(ConfigManager.getInt("timeout.implicit.seconds", 10)));
+				.pageLoadTimeout(Duration.ofSeconds(ConfigManager.getInt("timeout.pageload.seconds", 30)));
 		return driver;
 	}
 
@@ -66,7 +76,7 @@ public final class DriverFactory {
 			options.addArguments("--disable-gpu", "--no-sandbox", "--window-size=1440,900");
 			return options;
 		}
-		throw new IllegalArgumentException(
+		throw new ConfigurationException(
 				"Unsupported browser '" + browser + "'. Expected one of: chrome, firefox, edge.");
 	}
 
@@ -85,7 +95,7 @@ public final class DriverFactory {
 			URL url = URI.create(gridUrl).toURL();
 			return new RemoteWebDriver(url, options);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("grid.url is not a valid URL: " + gridUrl, e);
+			throw new ConfigurationException("grid.url is not a valid URL: " + gridUrl, e);
 		}
 	}
 }

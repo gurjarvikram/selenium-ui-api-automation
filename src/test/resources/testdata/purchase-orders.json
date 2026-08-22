@@ -1,0 +1,12 @@
+{
+	"standardCustomer": {
+		"product": "ZARA COAT 3",
+		"country": "India",
+		"expectedConfirmation": "THANKYOU FOR THE ORDER."
+	},
+	"returningCustomer": {
+		"product": "ADIDAS ORIGINAL",
+		"country": "India",
+		"expectedConfirmation": "THANKYOU FOR THE ORDER."
+	}
+}

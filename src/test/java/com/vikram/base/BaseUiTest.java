@@ -1,9 +1,10 @@
 package com.vikram.base;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -20,6 +21,8 @@ import com.vikram.utils.JsonUtils;
  * run in parallel without sharing a browser.
  */
 public class BaseUiTest {
+
+	protected static final Logger log = LoggerFactory.getLogger(BaseUiTest.class);
 
 	protected LandingPage landingPage;
 	protected SessionManager session;
@@ -41,7 +44,8 @@ public class BaseUiTest {
 		DriverManager.quit();
 	}
 
-	protected List<HashMap<String, String>> readTestData(String classpathResource) {
-		return JsonUtils.readAsMapList(classpathResource);
+	/** Loads one role from a role-keyed fixture. */
+	protected Map<String, String> testData(String classpathResource, String role) {
+		return JsonUtils.readRole(classpathResource, role);
 	}
 }

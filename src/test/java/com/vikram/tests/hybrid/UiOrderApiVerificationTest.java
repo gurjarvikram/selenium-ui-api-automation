@@ -1,14 +1,14 @@
 package com.vikram.tests.hybrid;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.vikram.base.BaseHybridTest;
 import com.vikram.ui.pages.CartPage;
-import com.vikram.ui.pages.CheckoutPage;
 import com.vikram.ui.pages.ProductCatalogue;
 
 import io.restassured.response.Response;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Place the order in the browser, then verify it over the API.
@@ -22,16 +22,13 @@ public class UiOrderApiVerificationTest extends BaseHybridTest {
 	@Test(groups = { "regression", "hybrid" })
 	public void orderPlacedInUiIsPersistedInBackend() {
 		ProductCatalogue catalogue = session.loginViaApiAsDefaultUser();
-		catalogue.addProductToCart("ZARA COAT 3");
-
-		CartPage cartPage = catalogue.goToCartPage();
-		CheckoutPage checkoutPage = cartPage.goToCheckout();
-		checkoutPage.selectCountry("India");
-		checkoutPage.submitOrder();
+		CartPage cartPage = catalogue.addProductToCart("ZARA COAT 3").goToCartPage();
+		cartPage.goToCheckout().selectCountry("India").submitOrder();
 
 		Response orders = orderClient.getOrders(apiSession.getUserId());
-		Assert.assertEquals(orders.statusCode(), 200, "Order history should be retrievable");
-		Assert.assertTrue(orders.asString().contains("ZARA COAT 3"),
-				"Order placed through the UI should be present in the backend order history");
+		assertThat(orders.statusCode()).as("order history status").isEqualTo(200);
+		assertThat(orders.asString())
+				.as("order placed through the UI should be present in the backend order history")
+				.contains("ZARA COAT 3");
 	}
 }

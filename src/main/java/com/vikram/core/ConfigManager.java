@@ -3,34 +3,90 @@ package com.vikram.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vikram.core.exceptions.ConfigurationException;
 
 /**
  * Single source of truth for configuration.
  *
- * Resolution order, highest priority first:
+ * Values are layered. Shared defaults live in config.properties; anything that differs
+ * per deployment lives in env-{name}.properties and overrides them. On top of that:
+ *
  *   1. JVM system property   -Dbrowser=firefox
  *   2. Environment variable  BROWSER=firefox   (dots become underscores, upper-cased)
- *   3. config.properties on the test classpath
+ *   3. env-{name}.properties selected by -Denv=
+ *   4. config.properties
  *
- * Credentials are deliberately NOT stored in config.properties. They resolve from the
- * environment only, so nothing secret is ever committed. See .env.example.
+ * Credentials are deliberately absent from all of these files and resolve from the
+ * process environment only, so nothing secret is ever committed. See .env.example.
  */
 public final class ConfigManager {
 
+	private static final Logger log = LoggerFactory.getLogger(ConfigManager.class);
+
+	/** Environments with a checked-in profile. Naming anything else is a hard error. */
+	private static final Set<String> KNOWN_ENVIRONMENTS = new TreeSet<>(Set.of("demo"));
+
+	private static final String ENVIRONMENT = resolveEnvironment();
 	private static final Properties PROPS = load();
 
 	private ConfigManager() {
 	}
 
+	public static String environment() {
+		return ENVIRONMENT;
+	}
+
+	private static String resolveEnvironment() {
+		String name = System.getProperty("env");
+		if (name == null || name.isBlank()) {
+			name = System.getenv("ENV");
+		}
+		if (name == null || name.isBlank()) {
+			name = "demo";
+		}
+		name = name.trim().toLowerCase();
+
+		// Fail on an unknown name rather than silently falling back: a typo in a CI
+		// variable should stop the build, not quietly run against the wrong target.
+		if (!KNOWN_ENVIRONMENTS.contains(name)) {
+			throw new ConfigurationException("Unknown environment '" + name + "'. Known environments: "
+					+ String.join(", ", KNOWN_ENVIRONMENTS)
+					+ ". Add src/test/resources/config/env-" + name + ".properties and register it"
+					+ " in ConfigManager.KNOWN_ENVIRONMENTS to introduce a new one.");
+		}
+		return name;
+	}
+
 	private static Properties load() {
+		Properties defaults = read("config/config.properties", true);
+		Properties environment = read("config/env-" + ENVIRONMENT + ".properties", true);
+
+		Properties merged = new Properties();
+		merged.putAll(defaults);
+		merged.putAll(environment);
+
+		log.info("Configuration loaded for environment '{}'", ENVIRONMENT);
+		return merged;
+	}
+
+	private static Properties read(String resource, boolean required) {
 		Properties props = new Properties();
-		try (InputStream in = ConfigManager.class.getClassLoader().getResourceAsStream("config/config.properties")) {
+		try (InputStream in = ConfigManager.class.getClassLoader().getResourceAsStream(resource)) {
 			if (in == null) {
-				throw new IllegalStateException("config/config.properties not found on the classpath");
+				if (required) {
+					throw new ConfigurationException("Required config file not on the classpath: " + resource);
+				}
+				return props;
 			}
 			props.load(in);
 		} catch (IOException e) {
-			throw new IllegalStateException("Unable to read config/config.properties", e);
+			throw new ConfigurationException("Unable to read " + resource, e);
 		}
 		return props;
 	}
@@ -39,9 +95,9 @@ public final class ConfigManager {
 	public static String get(String key) {
 		String value = resolve(key);
 		if (value == null || value.isBlank()) {
-			throw new IllegalStateException("Missing configuration key '" + key
-					+ "'. Set it in config/config.properties, as -D" + key + "=..., or as env "
-					+ toEnvKey(key) + ".");
+			throw new ConfigurationException("Missing configuration key '" + key
+					+ "'. Set it in config/config.properties or config/env-" + ENVIRONMENT
+					+ ".properties, as -D" + key + "=..., or as env " + toEnvKey(key) + ".");
 		}
 		return value.trim();
 	}
@@ -56,12 +112,18 @@ public final class ConfigManager {
 	}
 
 	public static int getInt(String key, int defaultValue) {
-		return Integer.parseInt(get(key, String.valueOf(defaultValue)));
+		String raw = get(key, String.valueOf(defaultValue));
+		try {
+			return Integer.parseInt(raw);
+		} catch (NumberFormatException e) {
+			throw new ConfigurationException("Configuration key '" + key + "' must be a number, got '" + raw + "'", e);
+		}
 	}
 
 	/**
-	 * Reads a required credential from the environment. Kept separate from {@link #get}
-	 * so the error message can point at the right fix.
+	 * Reads a required credential from the process environment. Kept separate from
+	 * {@link #get} so the error message can point at the right fix, and so credentials
+	 * never resolve from a checked-in file by accident.
 	 */
 	public static String getSecret(String envKey) {
 		String value = System.getenv(envKey);
@@ -69,7 +131,7 @@ public final class ConfigManager {
 			value = System.getProperty(envKey);
 		}
 		if (value == null || value.isBlank()) {
-			throw new IllegalStateException("Missing credential '" + envKey
+			throw new ConfigurationException("Missing credential '" + envKey
 					+ "'. Copy .env.example to .env and export it, or pass -D" + envKey + "=...");
 		}
 		return value.trim();
