@@ -22,9 +22,11 @@ Most UI suites re-drive the login form for every test and assert only on what th
 ```
 src/main/java/com/vikram/
 ├── core/          ConfigManager · DriverFactory · DriverManager (ThreadLocal)
+├── core/users/    UserRole · User (password-masking) · UserManager
 ├── ui/pages/      Page objects · SessionManager
 ├── ui/components/ AbstractComponent — shared header navigation
 ├── ui/            ObjectRepository (locators) · Waits (explicit-only)
+├── ui/            UiRoute · Routes — named routes, no URL string building
 ├── api/clients/   AuthClient · ProductClient · OrderClient
 ├── api/specs/     SpecFactory — base, authenticated and multipart specs
 ├── api/models/    Request/response POJOs
@@ -75,10 +77,17 @@ mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 | `env` | `demo` | Environment profile; an unknown name fails the build |
 | `timeout.explicit.seconds` | `15` | Explicit wait ceiling |
 | `api.log.requests` | `false` | Log API request/response bodies while debugging |
+| `timeout.pageload.seconds` | `30` | Page load ceiling |
 
-`ECOM_USER_EMAIL` and `ECOM_USER_PASSWORD` are required and resolve from the environment only.
+`ECOM_USER_EMAIL` and `ECOM_USER_PASSWORD` are required and resolve from the environment only — never from a tracked file. Adding a second role means one constant in `UserRole` and two more variables; no test changes.
+
+Suite scope: `smoke` runs one representative test per layer, so the purchase journey runs once. `regression` runs the same journey for every role in the fixture, plus the negative and cross-layer cases.
 
 ## Design notes
+
+**Credentials resolve through one place.** `UserManager.standardCustomer()` returns a `User`; the environment-variable names live in `UserRole` and nowhere else. Tests never touch `ConfigManager.getSecret`, so renaming a variable is a one-line change instead of seven. `User.toString()` masks the password on purpose — test names, assertion messages, retry logs and Extent output all stringify what they are handed, and a record's generated `toString` would print it in every one of them.
+
+**URLs are named routes.** `UiRoute` holds the paths (`LOGIN`, `DASHBOARD`, `CART`, `ORDERS`) and `Routes` joins them onto `ui.base.url`, tolerating a trailing slash either way. Deep links used to be built by concatenation at the point of use, which put `"dashboard/dash"` inside a page object. The API side has the same treatment in `ApiEndpoints`.
 
 **Locators live outside the code.** Each page has a file under `src/main/resources/objectrepository/` holding `name = strategy:value` entries. A markup change is a one-line edit in a data file, and every locator for a page is visible in one place. `ObjectRepository` parses and caches them, failing with the available keys when one is missing. Page objects use plain `By` lookups rather than PageFactory proxies, which re-resolve on each use and so do not go stale when the page re-renders.
 
@@ -89,6 +98,12 @@ mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 **Test data is role-keyed, not positional.** Fixtures map a role name to its fields, so a test asks for `standardCustomer` rather than row 0 and reordering the file cannot silently repoint a test at different data.
 
 **Failures are typed.** A `FrameworkException` means the harness is misconfigured and no assertion ran; an `AssertionError` means the application misbehaved. That distinction is what makes a red build triageable at a glance.
+
+**Fixtures cannot collide with real data.** API fixture products are named `AUTOMATION FIXTURE <uuid>`. The name was previously a real catalogue product, so under parallel execution a UI test could add the API test's fixture to its cart and then have it deleted mid-run.
+
+**Failure evidence survives the trip.** Screenshots are written under `target/reports/screenshots/` and handed to Extent as a path *relative to the report*, because an absolute path resolves only on the machine that produced it — every image in a downloaded CI artifact would otherwise be broken. Names carry a sequence number so two failing rows of one data-driven test do not overwrite each other.
+
+**Parallelism is split, on purpose.** Every suite authenticates as one account, and that account has one server-side cart. Two browser journeys running concurrently fight over it — one checks out, empties the cart, and the other's assertion fails. The API tests are exempt because they create uniquely named fixtures and never touch the cart, so they still run in parallel alongside a serialized browser block. With per-thread accounts the browser block could parallelise too; that is the change to make against an environment where users can be provisioned.
 
 **Retry is uniform.** `RetryTransformer` applies the analyser to every test through the suite files. Previously three of seven classes opted in by annotation and the rest silently did not. Every retry is logged so flakiness stays visible.
 

@@ -18,7 +18,7 @@ public class OrderPage extends AbstractComponent {
 	}
 
 	public boolean isOrderDisplayed(String productName) {
-		return waits.allVisible(locator("orderedProductName")).stream()
+		return waits.allVisibleOrEmpty(locator("orderedProductName")).stream()
 				.map(WebElement::getText)
 				.anyMatch(text -> text.equalsIgnoreCase(productName));
 	}

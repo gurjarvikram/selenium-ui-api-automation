@@ -6,6 +6,7 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -46,6 +47,23 @@ public final class Waits {
 
 	public List<WebElement> allVisible(By locator) {
 		return until().until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+	}
+
+	/**
+	 * Waits for the elements to render, returning an empty list instead of throwing if
+	 * none ever do.
+	 *
+	 * This is what a "does the list contain X" question needs: a plain findElements races
+	 * the render and can report an empty list before the page has drawn, while allVisible
+	 * turns a legitimately empty list into a TimeoutException. Once any row renders, the
+	 * negative answer is immediate.
+	 */
+	public List<WebElement> allVisibleOrEmpty(By locator) {
+		try {
+			return allVisible(locator);
+		} catch (TimeoutException e) {
+			return List.of();
+		}
 	}
 
 	public void invisible(By locator) {

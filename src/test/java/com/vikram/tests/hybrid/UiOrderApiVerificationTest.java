@@ -21,7 +21,7 @@ public class UiOrderApiVerificationTest extends BaseHybridTest {
 
 	@Test(groups = { "regression", "hybrid" })
 	public void orderPlacedInUiIsPersistedInBackend() {
-		ProductCatalogue catalogue = session.loginViaApiAsDefaultUser();
+		ProductCatalogue catalogue = session.loginViaApiAsStandardCustomer();
 		CartPage cartPage = catalogue.addProductToCart("ZARA COAT 3").goToCartPage();
 		cartPage.goToCheckout().selectCountry("India").submitOrder();
 

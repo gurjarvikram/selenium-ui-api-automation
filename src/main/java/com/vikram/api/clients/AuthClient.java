@@ -6,7 +6,8 @@ import com.vikram.api.endpoints.ApiEndpoints;
 import com.vikram.api.models.LoginRequest;
 import com.vikram.api.models.LoginResponse;
 import com.vikram.api.specs.SpecFactory;
-import com.vikram.core.ConfigManager;
+import com.vikram.core.users.User;
+import com.vikram.core.users.UserManager;
 
 import io.restassured.response.Response;
 
@@ -29,10 +30,13 @@ public class AuthClient {
 				.as(LoginResponse.class);
 	}
 
-	/** Logs in with the credentials supplied through the environment. */
-	public LoginResponse loginAsDefaultUser() {
-		return login(ConfigManager.getSecret("ECOM_USER_EMAIL"),
-				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
+	public LoginResponse login(User user) {
+		return login(user.email(), user.password());
+	}
+
+	/** Logs in as the role the suites run as by default. */
+	public LoginResponse loginAsStandardCustomer() {
+		return login(UserManager.standardCustomer());
 	}
 
 	/** Raw response, so negative tests can assert on non-200 status codes. */

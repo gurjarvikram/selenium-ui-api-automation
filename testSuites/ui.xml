@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="UI Suite" parallel="classes" thread-count="3">
+<!-- Sequential: every test drives the same account's cart. See regression.xml. -->
+<suite name="UI Suite">
 	<listeners>
 		<listener class-name="com.vikram.listeners.Listeners" />
 		<listener class-name="com.vikram.listeners.RetryTransformer" />

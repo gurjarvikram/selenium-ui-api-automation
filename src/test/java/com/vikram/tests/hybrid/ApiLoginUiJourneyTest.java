@@ -22,7 +22,7 @@ public class ApiLoginUiJourneyTest extends BaseHybridTest {
 
 	@Test(groups = { "smoke", "hybrid" })
 	public void completesCheckoutAfterApiLogin() {
-		ProductCatalogue catalogue = session.loginViaApiAsDefaultUser();
+		ProductCatalogue catalogue = session.loginViaApiAsStandardCustomer();
 
 		CartPage cartPage = catalogue.addProductToCart("ZARA COAT 3").goToCartPage();
 		assertThat(cartPage.isProductDisplayed("ZARA COAT 3"))

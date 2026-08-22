@@ -1,27 +1,48 @@
-# Build output
+# ---- Build output -------------------------------------------------------------
 target/
 bin/
 out/
+build/
+dependency-reduced-pom.xml
 
-# Reports and run artefacts
+# ---- Test output and reports --------------------------------------------------
+# Reports are build artefacts: CI uploads them from target/, nothing is tracked.
 reports/
 test-output/
 allure-results/
 allure-report/
-*.log
+screenshots/
+*.har
+
+# ---- Logs ---------------------------------------------------------------------
 logs/
+*.log
+chromedriver.log
+geckodriver.log
+selenium*.log
+hs_err_pid*.log
 
-# Secrets
+# ---- Secrets ------------------------------------------------------------------
+# Real credentials live in the environment only. .env.example is the tracked template
+# and is deliberately re-included below.
 .env
+.env.*
+!.env.example
+*.pem
+*.p12
+secrets.properties
 
-# IDE
+# ---- IDE ----------------------------------------------------------------------
 .idea/
 *.iml
+*.ipr
+*.iws
 .classpath
 .project
 .settings/
 .vscode/
+*.swp
 
-# OS
+# ---- OS -----------------------------------------------------------------------
 .DS_Store
 Thumbs.db

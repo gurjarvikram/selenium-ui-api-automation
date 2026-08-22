@@ -2,7 +2,8 @@ package com.vikram.ui.pages;
 
 import org.openqa.selenium.WebDriver;
 
-import com.vikram.core.ConfigManager;
+import com.vikram.core.users.User;
+import com.vikram.ui.UiRoute;
 import com.vikram.ui.components.AbstractComponent;
 
 /** Login screen. */
@@ -18,22 +19,24 @@ public class LandingPage extends AbstractComponent {
 	}
 
 	public void goTo() {
-		driver.get(ConfigManager.get("ui.base.url"));
+		driver.get(UiRoute.LOGIN.url());
 	}
 
-	public ProductCatalogue loginApplication(String email, String password) {
-		waits.type(locator("userEmail"), email);
-		waits.type(locator("userPassword"), password);
-		waits.click(locator("loginButton"));
+	public ProductCatalogue loginApplication(User user) {
+		submit(user);
 		return new ProductCatalogue(driver);
 	}
 
 	/** Submits credentials expected to be rejected, leaving the browser on this page. */
-	public LandingPage loginExpectingFailure(String email, String password) {
-		waits.type(locator("userEmail"), email);
-		waits.type(locator("userPassword"), password);
-		waits.click(locator("loginButton"));
+	public LandingPage loginExpectingFailure(User user) {
+		submit(user);
 		return this;
+	}
+
+	private void submit(User user) {
+		waits.type(locator("userEmail"), user.email());
+		waits.type(locator("userPassword"), user.password());
+		waits.click(locator("loginButton"));
 	}
 
 	public String getErrorMessage() {

@@ -34,7 +34,7 @@ public class ApiSetupUiVerificationTest extends BaseHybridTest {
 		Response order = orderClient.createOrder(productId, "India");
 		assertThat(order.statusCode()).as("precondition: order created over the API").isEqualTo(201);
 
-		ProductCatalogue catalogue = session.loginViaApiAsDefaultUser();
+		ProductCatalogue catalogue = session.loginViaApiAsStandardCustomer();
 		OrderPage orderPage = catalogue.goToOrderPage();
 
 		assertThat(orderPage.isOrderDisplayed(FIXTURE_PRODUCT))

@@ -5,7 +5,10 @@ import org.openqa.selenium.WebDriver;
 
 import com.vikram.api.clients.AuthClient;
 import com.vikram.api.models.LoginResponse;
-import com.vikram.core.ConfigManager;
+import com.vikram.core.users.User;
+import com.vikram.core.users.UserManager;
+import com.vikram.ui.Routes;
+import com.vikram.ui.UiRoute;
 
 /**
  * Puts the browser into a logged-in state without driving the login form.
@@ -26,15 +29,13 @@ public class SessionManager {
 	}
 
 	/** Authenticates over the API, seeds the session, and returns the catalogue page. */
-	public ProductCatalogue loginViaApi(String email, String password) {
-		LoginResponse login = authClient.login(email, password);
-		seedSession(login);
+	public ProductCatalogue loginViaApi(User user) {
+		seedSession(authClient.login(user));
 		return new ProductCatalogue(driver);
 	}
 
-	public ProductCatalogue loginViaApiAsDefaultUser() {
-		return loginViaApi(ConfigManager.getSecret("ECOM_USER_EMAIL"),
-				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
+	public ProductCatalogue loginViaApiAsStandardCustomer() {
+		return loginViaApi(UserManager.standardCustomer());
 	}
 
 	/**
@@ -42,13 +43,12 @@ public class SessionManager {
 	 * origin before localStorage is addressable, hence the initial get().
 	 */
 	public void seedSession(LoginResponse login) {
-		String baseUrl = ConfigManager.get("ui.base.url");
-		driver.get(baseUrl);
+		driver.get(Routes.baseUrl());
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("window.localStorage.setItem('token', arguments[0]);", login.getToken());
 		js.executeScript("window.localStorage.setItem('userId', arguments[0]);", login.getUserId());
 
-		driver.get(baseUrl + "dashboard/dash");
+		driver.get(UiRoute.DASHBOARD.url());
 	}
 }

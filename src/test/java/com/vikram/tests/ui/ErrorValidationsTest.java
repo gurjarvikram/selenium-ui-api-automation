@@ -5,7 +5,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.vikram.base.BaseUiTest;
-import com.vikram.core.ConfigManager;
+import com.vikram.core.users.UserManager;
+import com.vikram.core.users.UserRole;
 import com.vikram.ui.pages.CartPage;
 import com.vikram.ui.pages.ProductCatalogue;
 
@@ -19,7 +20,7 @@ public class ErrorValidationsTest extends BaseUiTest {
 	@Test(groups = { "negative", "regression" })
 	public void rejectsIncorrectPassword() {
 		String message = landingPage
-				.loginExpectingFailure(ConfigManager.getSecret("ECOM_USER_EMAIL"), "DefinitelyWrong@123?")
+				.loginExpectingFailure(UserManager.withWrongPassword(UserRole.STANDARD_CUSTOMER))
 				.getErrorMessage();
 
 		assertThat(message)
@@ -31,9 +32,7 @@ public class ErrorValidationsTest extends BaseUiTest {
 	public void cartDoesNotShowUnaddedProduct() {
 		Map<String, String> data = testData(FIXTURE, "standardCustomer");
 
-		ProductCatalogue catalogue = landingPage.loginApplication(
-				ConfigManager.getSecret("ECOM_USER_EMAIL"),
-				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
+		ProductCatalogue catalogue = landingPage.loginApplication(UserManager.standardCustomer());
 
 		CartPage cartPage = catalogue.addProductToCart(data.get("product")).goToCartPage();
 

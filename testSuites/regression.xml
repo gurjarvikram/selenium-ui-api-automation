@@ -1,22 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Regression Suite" parallel="classes" thread-count="3">
+<!--
+  Parallelism is split deliberately.
+
+  Every suite authenticates as one account, and that account has one server-side cart.
+  Two browser journeys running concurrently therefore fight over the same cart: one
+  checks out, empties it, and the other's assertion on cart contents fails. Retries
+  masked it as flakiness rather than the shared-state collision it is.
+
+  The API tests are exempt — they create uniquely named fixtures and never touch the
+  cart — so they keep running in parallel alongside the serialized browser block.
+
+  With per-thread accounts the browser block could parallelise too; that is the change
+  to make if this ever runs against an environment where users can be provisioned.
+-->
+<suite name="Regression Suite" parallel="tests" thread-count="2">
 	<listeners>
 		<listener class-name="com.vikram.listeners.Listeners" />
 		<listener class-name="com.vikram.listeners.RetryTransformer" />
 	</listeners>
-	<test name="Full regression">
+
+	<test name="API contracts" parallel="classes" thread-count="3">
+		<groups>
+			<run><include name="api" /></run>
+		</groups>
+		<packages>
+			<package name="com.vikram.tests.api" />
+		</packages>
+	</test>
+
+	<!-- Sequential: these share one account's cart. -->
+	<test name="Browser journeys">
 		<groups>
 			<run>
 				<include name="regression" />
 				<include name="negative" />
-				<include name="api" />
 				<include name="hybrid" />
 			</run>
 		</groups>
 		<packages>
 			<package name="com.vikram.tests.ui" />
-			<package name="com.vikram.tests.api" />
 			<package name="com.vikram.tests.hybrid" />
 		</packages>
 	</test>

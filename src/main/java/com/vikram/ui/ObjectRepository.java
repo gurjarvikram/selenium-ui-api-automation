@@ -29,13 +29,25 @@ public final class ObjectRepository {
 	}
 
 	public static By by(String page, String key) {
+		return by(page, key, new Object[0]);
+	}
+
+	/**
+	 * Resolves a locator, substituting {@code args} into its %s placeholders.
+	 *
+	 * Lets one entry address a specific row or card -- "the add-to-cart button of the
+	 * card titled X" -- so the click targets a single element rather than being resolved
+	 * by walking a list in Java.
+	 */
+	public static By by(String page, String key, Object... args) {
 		Properties locators = load(page);
 		String raw = locators.getProperty(key);
 		if (raw == null || raw.isBlank()) {
 			throw new ConfigurationException("No locator '" + key + "' in objectrepository/" + page
 					+ ".properties. Available: " + new java.util.TreeSet<>(locators.stringPropertyNames()));
 		}
-		return parse(page, key, raw.trim());
+		String resolved = (args == null || args.length == 0) ? raw.trim() : String.format(raw.trim(), args);
+		return parse(page, key, resolved);
 	}
 
 	private static Properties load(String page) {

@@ -27,7 +27,7 @@ public class BaseHybridTest extends BaseUiTest {
 	@BeforeMethod(alwaysRun = true, dependsOnMethods = "launchApplication")
 	public void authenticateApi() {
 		authClient = new AuthClient();
-		apiSession = authClient.loginAsDefaultUser();
+		apiSession = authClient.loginAsStandardCustomer();
 		productClient = new ProductClient(apiSession.getToken());
 		orderClient = new OrderClient(apiSession.getToken());
 	}

@@ -27,7 +27,7 @@ public class BaseApiTest {
 	@BeforeClass(alwaysRun = true)
 	public void authenticate() {
 		authClient = new AuthClient();
-		session = authClient.loginAsDefaultUser();
+		session = authClient.loginAsStandardCustomer();
 		productClient = new ProductClient(session.getToken());
 		orderClient = new OrderClient(session.getToken());
 	}

@@ -38,10 +38,19 @@ public class ProductCatalogue extends AbstractComponent {
 						"Product '" + productName + "' is not present in the catalogue"));
 	}
 
+	/**
+	 * Adds one product to the cart.
+	 *
+	 * The click goes through the resilient Waits.click against a locator that addresses
+	 * this product's button directly. Previously it was a raw click on a WebElement found
+	 * by walking the card list, which bypassed the interception retry entirely -- the
+	 * overlay could swallow it, the toast never appeared, and the cart was empty by the
+	 * time the next page asserted on it.
+	 */
 	public ProductCatalogue addProductToCart(String productName) {
-		getProductByName(productName).findElement(locator("addToCart")).click();
-		// The toast confirms the item landed; the spinner clear keeps the next
-		// interaction from racing the overlay, and Waits.click covers the remainder.
+		waitForSpinnerToClear();
+		getProductByName(productName);
+		waits.click(locator("addToCartFor", productName));
 		waits.visible(common("toast"));
 		waitForSpinnerToClear();
 		return this;

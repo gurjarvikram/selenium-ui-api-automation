@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Hybrid Suite" parallel="classes" thread-count="2">
+<!-- Sequential: two of these three drive the same account's cart. See regression.xml. -->
+<suite name="Hybrid Suite">
 	<listeners>
 		<listener class-name="com.vikram.listeners.Listeners" />
 		<listener class-name="com.vikram.listeners.RetryTransformer" />

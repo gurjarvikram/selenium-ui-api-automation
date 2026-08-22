@@ -4,7 +4,9 @@ import org.testng.annotations.Test;
 
 import com.vikram.api.models.LoginResponse;
 import com.vikram.base.BaseApiTest;
-import com.vikram.core.ConfigManager;
+import com.vikram.core.users.User;
+import com.vikram.core.users.UserManager;
+import com.vikram.core.users.UserRole;
 
 import io.restassured.response.Response;
 
@@ -15,9 +17,7 @@ public class AuthApiTest extends BaseApiTest {
 
 	@Test(groups = { "smoke", "api" })
 	public void loginReturnsToken() {
-		LoginResponse response = authClient.login(
-				ConfigManager.getSecret("ECOM_USER_EMAIL"),
-				ConfigManager.getSecret("ECOM_USER_PASSWORD"));
+		LoginResponse response = authClient.login(UserManager.standardCustomer());
 
 		assertThat(response.getToken()).as("auth token").isNotNull().isNotBlank();
 		assertThat(response.getUserId()).as("user id").isNotNull().isNotBlank();
@@ -25,8 +25,8 @@ public class AuthApiTest extends BaseApiTest {
 
 	@Test(groups = { "negative", "api" })
 	public void loginRejectsWrongPassword() {
-		Response response = authClient.attemptLogin(
-				ConfigManager.getSecret("ECOM_USER_EMAIL"), "DefinitelyWrong@123?");
+		User user = UserManager.withWrongPassword(UserRole.STANDARD_CUSTOMER);
+		Response response = authClient.attemptLogin(user.email(), user.password());
 
 		assertThat(response.statusCode()).as("status for a wrong password").isEqualTo(400);
 		assertThat(response.jsonPath().getString("message"))

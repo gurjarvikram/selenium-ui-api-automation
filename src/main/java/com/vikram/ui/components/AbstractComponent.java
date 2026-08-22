@@ -32,6 +32,11 @@ public abstract class AbstractComponent {
 		return ObjectRepository.by(pageName(), key);
 	}
 
+	/** Resolves a locator whose value carries %s placeholders. */
+	protected By locator(String key, Object... args) {
+		return ObjectRepository.by(pageName(), key, args);
+	}
+
 	protected By common(String key) {
 		return ObjectRepository.by(COMMON, key);
 	}
