@@ -20,8 +20,8 @@ jobs:
     name: API contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: temurin
@@ -30,7 +30,7 @@ jobs:
         run: mvn -B -P api test
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: api-report
           path: target/reports/
@@ -47,8 +47,8 @@ jobs:
         suite: [ui, hybrid]
         browser: [chrome, firefox]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: temurin
@@ -57,7 +57,7 @@ jobs:
         run: mvn -B -P ${{ matrix.suite }} test -Dbrowser=${{ matrix.browser }} -Dheadless=true
       - name: Upload report and failure screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.suite }}-${{ matrix.browser }}-report
           path: target/reports/

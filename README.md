@@ -88,6 +88,6 @@ mvn test -P ui -Dgrid.url=http://localhost:4444    # same suite, on a Grid
 
 ## Tooling
 
-Selenium 4.26 · REST Assured 5.5 · TestNG 7.10 · Jackson 2.18 · Extent Reports 5.1 · Java 21 · Maven
+Selenium 4.47 · REST Assured 6.0 · TestNG 7.12 · Jackson 2.22 · Extent Reports 5.1 · Java 21 (LTS) · Maven
 
 Driver binaries are resolved by Selenium Manager, so there is no WebDriverManager dependency and nothing to install.
