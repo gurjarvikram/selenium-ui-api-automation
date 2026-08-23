@@ -7,12 +7,24 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # Nightly regression against the live demo environment.
+    # Nightly canary against the live demo environment: the demo site changing under
+    # the suite is the failure this catches, and it catches it without a push.
     - cron: '0 2 * * *'
 
 env:
   ECOM_USER_EMAIL: ${{ secrets.ECOM_USER_EMAIL }}
   ECOM_USER_PASSWORD: ${{ secrets.ECOM_USER_PASSWORD }}
+
+# One CI run at a time, repository-wide.
+#
+# Every suite authenticates as the same account, and that account has a single
+# server-side cart. Two runs overlapping -- two pull requests, or a push landing during
+# the nightly -- check out and empty each other's carts, which surfaces as an unrelated
+# "cart is empty" assertion failure. Queueing rather than cancelling keeps every commit
+# tested; the trade is that a second run waits a couple of minutes.
+concurrency:
+  group: ci-shared-account
+  cancel-in-progress: false
 
 jobs:
   # Static analysis gate. Runs first and blocks everything else, so a style or
@@ -52,16 +64,13 @@ jobs:
           path: target/reports/
           retention-days: 7
 
-  # UI and hybrid run only once the API gate is green.
-  browser:
-    name: ${{ matrix.suite }} on ${{ matrix.browser }}
+  # The only browser job CI runs: one representative journey per layer, on one browser.
+  # The wider journeys stay in `mvn -P regression`, run locally or on demand, rather than
+  # spending browser minutes on every push to re-prove the same page objects.
+  smoke:
+    name: Smoke on chrome
     needs: api
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [ui, hybrid]
-        browser: [chrome, firefox]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
@@ -69,12 +78,12 @@ jobs:
           java-version: '21'
           distribution: temurin
           cache: maven
-      - name: Run ${{ matrix.suite }} suite
-        run: mvn -B -P ${{ matrix.suite }} test -Dbrowser=${{ matrix.browser }} -Dheadless=true
+      - name: Run smoke suite
+        run: mvn -B -P smoke test -Dbrowser=chrome -Dheadless=true
       - name: Upload report and failure screenshots
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.suite }}-${{ matrix.browser }}-report
+          name: smoke-report
           path: target/reports/
           retention-days: 7
