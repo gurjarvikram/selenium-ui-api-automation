@@ -14,6 +14,12 @@ on:
 env:
   ECOM_USER_EMAIL: ${{ secrets.ECOM_USER_EMAIL }}
   ECOM_USER_PASSWORD: ${{ secrets.ECOM_USER_PASSWORD }}
+  # Repository variables, not secrets: a target URL is configuration, and keeping it out
+  # of the secret store means it stays readable in the logs where it is useful. Unset is
+  # the normal case -- ConfigManager treats a blank value as absent and falls through to
+  # env-demo.properties, so these only matter when pointing CI at another deployment.
+  UI_BASE_URL: ${{ vars.UI_BASE_URL }}
+  API_BASE_URL: ${{ vars.API_BASE_URL }}
 
 # One CI run at a time, repository-wide.
 #
