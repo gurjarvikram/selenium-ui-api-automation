@@ -12,6 +12,9 @@ import com.vikram.ui.components.AbstractComponent;
 /** Product grid shown after login. */
 public class ProductCatalogue extends AbstractComponent {
 
+	/** Toast the application raises once the add-to-cart call has been accepted. */
+	private static final String ADDED_TO_CART = "Product Added To Cart";
+
 	public ProductCatalogue(WebDriver driver) {
 		super(driver);
 	}
@@ -39,19 +42,31 @@ public class ProductCatalogue extends AbstractComponent {
 	}
 
 	/**
-	 * Adds one product to the cart.
+	 * Adds one product to the cart, returning only once the server has confirmed it.
 	 *
 	 * The click goes through the resilient Waits.click against a locator that addresses
 	 * this product's button directly. Previously it was a raw click on a WebElement found
 	 * by walking the card list, which bypassed the interception retry entirely -- the
 	 * overlay could swallow it, the toast never appeared, and the cart was empty by the
 	 * time the next page asserted on it.
+	 *
+	 * The wait afterwards is on the toast's *text*, not merely on the container being
+	 * visible. Both toasts share one #toast-container, and the "Login Successfully" toast
+	 * lives about five seconds -- longer than it takes to reach this point -- so a plain
+	 * visibility check was satisfied by the login toast the instant the click landed and
+	 * synchronised on nothing. The add's own POST was still in flight when goToCartPage
+	 * navigated away, and the cart rendered empty. That is invisible on a fast machine,
+	 * where the POST wins the race anyway, and reproducible on a loaded CI runner.
+	 *
+	 * Waiting for the container to clear afterwards keeps the next add honest: it cannot
+	 * mistake this add's toast for its own.
 	 */
 	public ProductCatalogue addProductToCart(String productName) {
 		waitForSpinnerToClear();
 		getProductByName(productName);
 		waits.click(locator("addToCartFor", productName));
-		waits.visible(common("toast"));
+		waits.textToBePresent(common("toast"), ADDED_TO_CART);
+		waits.invisible(common("toast"));
 		waitForSpinnerToClear();
 		return this;
 	}
