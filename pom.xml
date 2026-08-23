@@ -63,6 +63,14 @@
                 <suite.file>testSuites/smoke.xml</suite.file>
             </properties>
         </profile>
+
+        <!-- Everything, browser journeys serialized against the shared cart. -->
+        <profile>
+            <id>regression</id>
+            <properties>
+                <suite.file>testSuites/regression.xml</suite.file>
+            </properties>
+        </profile>
     </profiles>
 
     <build>
