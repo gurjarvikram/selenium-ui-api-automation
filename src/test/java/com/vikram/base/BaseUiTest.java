@@ -2,7 +2,9 @@ package com.vikram.base;
 
 import java.util.Map;
 
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
@@ -31,12 +33,42 @@ public class BaseUiTest {
 		return DriverManager.get();
 	}
 
+	/**
+	 * Starts a browser on the login screen, retrying once if the first page load times out.
+	 *
+	 * The retry lives here rather than in {@link com.vikram.listeners.Retry} because TestNG
+	 * only applies a retry analyser to @Test methods: a slow application host fails this
+	 * configuration method instead, which reds the whole class with no second attempt. The
+	 * retry starts a fresh browser, since a renderer that stopped responding usually stays
+	 * wedged and reusing the session would only burn a second page-load timeout.
+	 */
 	@BeforeMethod(alwaysRun = true)
 	public void launchApplication() {
+		try {
+			startBrowser();
+			landingPage.goTo();
+		} catch (TimeoutException first) {
+			log.warn("Page load timed out opening the application; retrying once on a fresh browser: {}",
+					first.getMessage());
+			discardBrowser();
+			startBrowser();
+			landingPage.goTo();
+		}
+	}
+
+	private void startBrowser() {
 		DriverManager.set(DriverFactory.create());
 		landingPage = new LandingPage(driver());
 		session = new SessionManager(driver());
-		landingPage.goTo();
+	}
+
+	/** Quits the timed-out browser. A wedged session can fail to quit, which must not mask the retry. */
+	private void discardBrowser() {
+		try {
+			DriverManager.quit();
+		} catch (WebDriverException e) {
+			log.warn("Could not quit the timed-out browser cleanly: {}", e.getMessage());
+		}
 	}
 
 	@AfterMethod(alwaysRun = true)
