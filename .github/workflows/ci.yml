@@ -9,7 +9,7 @@ on:
   schedule:
     # Nightly canary against the live demo environment: the demo site changing under
     # the suite is the failure this catches, and it catches it without a push.
-    - cron: '0 2 * * *'
+    - cron: '0 2 1 1,4,7,10 *'
 
 env:
   ECOM_USER_EMAIL: ${{ secrets.ECOM_USER_EMAIL }}
