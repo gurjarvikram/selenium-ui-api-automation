@@ -68,7 +68,7 @@ jobs:
         with:
           name: api-report
           path: target/reports/
-          retention-days: 7
+          retention-days: 3
 
   # The only browser job CI runs: one representative journey per layer, on one browser.
   # The wider journeys stay in `mvn -P regression`, run locally or on demand, rather than
@@ -92,4 +92,4 @@ jobs:
         with:
           name: smoke-report
           path: target/reports/
-          retention-days: 7
+          retention-days: 3
